@@ -11,5 +11,3 @@ Tahu order yang bermasalah sebelum terlambat.
 - Anggota 4:
 
 FlowOps adalah aplikasi web berbasis cloud yang membantu seller online mendeteksi, memprioritaskan, dan menangani pesanan bermasalah sebelum melewati tenggat pemrosesan.
-
-Dokumentasi lengkap proyek dapat dibaca di [docs/PROJECT_SPEC.md](docs/PROJECT_SPEC.md).
