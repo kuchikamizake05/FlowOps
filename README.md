@@ -5,7 +5,7 @@ Tahu order yang bermasalah sebelum terlambat.
 **Kelompok FlowOps**
 
 - Ketua Kelompok:
-- Anggota 1:
+- Anggota 1: Rafif Raihan Bahrul Alam - 24/534432/TK/59237
 - Anggota 2:
 - Anggota 3: Hendra Kurnia Maliqi - 24/542344/TK/60216
 
