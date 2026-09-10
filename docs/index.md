@@ -1,19 +1,16 @@
-<div align="center">
 
-# Sama kaya yang lain
+# Nama Kelompok: Sama kaya yang lain
 
-| Anggota | NIM |
+## Anggota Tim
+| Nama | NIM |
 | :--- | :--- |
 | Faaid Sakhaa | 24/539398/TK/59820 |
 | Rafif Raihan Bahrul Alam | 24/534432/TK/59237 |
 | Hendra Kurnia Maliqi | 24/542344/TK/60216 |
 
-Project Senior Project TI
+## Project Senior Project TI
 
-Departemen Teknologi Elektro dan Teknologi Informasi,
-Fakultas Teknik, Universitas Gadjah Mada
-
-</div>
+## Departemen Teknologi Elektro dan Teknologi Informasi, Fakultas Teknik, Universitas Gadjah Mada
 
 ---
 
