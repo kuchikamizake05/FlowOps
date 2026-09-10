@@ -3,7 +3,7 @@
 
 ## Anggota Tim
 | Nama | NIM |
-| :--- | :--- |
+| ----- | ----- |
 | Faaid Sakhaa | 24/539398/TK/59820 |
 | Rafif Raihan Bahrul Alam | 24/534432/TK/59237 |
 | Hendra Kurnia Maliqi | 24/542344/TK/60216 |
