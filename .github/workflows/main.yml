@@ -1,0 +1,20 @@
+name: Validate FlowOps Documentation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate GitHub Pages files
+        run: |
+          test -f docs/_config.yml
+          test -f docs/index.md
+          grep -q "FlowOps" docs/index.md
