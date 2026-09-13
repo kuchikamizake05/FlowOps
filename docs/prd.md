@@ -53,4 +53,3 @@ Data order, status pengiriman, dan komplain sering tersebar di beberapa kanal. O
 - Lima exception MVP dapat dideteksi dari data contoh.
 - Operator dapat menyelesaikan alur login, melihat tugasnya, lalu mencatat tindakan pada sebuah exception.
 - Owner dapat meninjau status dan riwayat penanganan exception.
-
