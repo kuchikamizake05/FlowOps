@@ -1,29 +1,39 @@
-import express from 'express';
+import express, { type NextFunction, type Request, type Response } from 'express';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import argon2 from 'argon2';
 import { z } from 'zod';
+import type { SessionStore } from './auth/session-store.js';
+import type { PublicUser } from './auth/user-repository.js';
+import { UserRepository } from './auth/user-repository.js';
+import { OrderRepository } from './orders/order-repository.js';
 
 const loginSchema = z.object({
   email: z.string().email().max(254),
   password: z.string().min(1).max(1024)
 });
 
-function publicUser(user) {
+interface AppDependencies {
+  users: UserRepository;
+  sessions: SessionStore;
+  orders: OrderRepository;
+}
+
+function publicUser(user: PublicUser): PublicUser {
   return { id: user.id, email: user.email, role: user.role };
 }
 
-function bearerToken(header) {
+function bearerToken(header: string | undefined): string | null {
   if (!header?.startsWith('Bearer ')) return null;
   return header.slice('Bearer '.length);
 }
 
-export function createApp({ users, sessions, orders }) {
+export function createApp({ users, sessions, orders }: AppDependencies) {
   const app = express();
   app.use(helmet());
   app.use(express.json({ limit: '32kb' }));
 
-  app.use((req, res, next) => {
+  app.use((req: Request, _res: Response, next: NextFunction) => {
     const token = bearerToken(req.get('authorization'));
     req.user = token ? sessions.find(token) : null;
     next();
@@ -80,7 +90,7 @@ export function createApp({ users, sessions, orders }) {
     return res.json({ order });
   });
 
-  app.use((error, _req, res, _next) => {
+  app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
     if (error instanceof SyntaxError && 'body' in error) {
       return res.status(400).json({ error: 'JSON tidak valid.' });
     }

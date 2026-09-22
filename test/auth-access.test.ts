@@ -23,10 +23,10 @@ async function testApp() {
   });
 }
 
-async function login(app, email) {
+async function login(app: Awaited<ReturnType<typeof testApp>>, email: string): Promise<string> {
   const response = await request(app).post('/api/auth/login').send({ email, password: 'password-yang-cukup-panjang' });
   assert.equal(response.status, 200);
-  return response.body.token;
+  return response.body.token as string;
 }
 
 test('login mengembalikan sesi tanpa password hash', async () => {

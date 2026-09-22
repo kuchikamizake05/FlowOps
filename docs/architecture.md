@@ -4,6 +4,8 @@
 
 Arsitektur FlowOps memisahkan penerimaan data, aturan exception, akses pengguna, dan rekomendasi AI. Pemisahan ini membuat tenggat serta prioritas dapat diuji dan dijelaskan tanpa bergantung pada output AI.
 
+Implementasi API menggunakan Node.js, Express, dan TypeScript dengan mode `strict`. Kode sumber berada di `src/`, lalu dikompilasi menjadi JavaScript ESM di `dist/` sebelum dijalankan di produksi.
+
 ```mermaid
 flowchart LR
   U[Owner / Operator] --> W[Web application]
