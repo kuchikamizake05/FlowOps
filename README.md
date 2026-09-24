@@ -4,7 +4,7 @@
 
 FlowOps adalah proyek aplikasi untuk membantu penjual daring menemukan dan menangani pesanan yang membutuhkan perhatian. Produk yang direncanakan menerima data pesanan, mendeteksi masalah berdasarkan aturan tenggat, lalu menyajikan antrean tindakan bagi pemilik toko dan operator.
 
-> **Status proyek:** repositori saat ini berisi fondasi API autentikasi, pembatasan akses detail pesanan, dan skema PostgreSQL awal. API belum memakai database tersebut. Antarmuka web, impor CSV, webhook, rules engine, AI, dan notifikasi masih dalam rancangan. Lihat [status implementasi](docs/status-implementasi.md).
+> **Status proyek:** repositori saat ini berisi fondasi API autentikasi, pembatasan akses detail pesanan, dan skema PostgreSQL awal. API belum memakai database tersebut. Antarmuka web, impor CSV, webhook, rules engine, AI, dan notifikasi masih dalam rancangan. Lihat [status implementasi](docs/implementation-status.md).
 
 ## Sasaran produk
 
@@ -13,7 +13,7 @@ FlowOps adalah proyek aplikasi untuk membantu penjual daring menemukan dan menan
 - Menyajikan antrean prioritas, penanggung jawab, dan riwayat tindakan.
 - Membantu operator membaca teks komplain atau retur melalui saran AI yang dapat diperiksa dan dikoreksi.
 
-Daftar ini merupakan **cakupan MVP yang direncanakan**. Kemampuan yang sudah berjalan dijelaskan pada bagian API di bawah dan di [status implementasi](docs/status-implementasi.md).
+Daftar ini merupakan **cakupan MVP yang direncanakan**. Kemampuan yang sudah berjalan dijelaskan pada bagian API di bawah dan di [status implementasi](docs/implementation-status.md).
 
 ## Teknologi saat ini
 
@@ -88,14 +88,14 @@ Variabel lingkungan yang tersedia: `PORT` (bawaan `3000`), `DEMO_OWNER_PASSWORD`
 ## Dokumentasi
 
 - [Beranda dokumentasi](docs/index.md)
-- [Panduan menjalankan dan pengembangan](docs/pengembangan.md)
+- [Panduan menjalankan dan pengembangan](docs/development-guide.md)
 - [Referensi API](docs/api.md)
 - [Arsitektur saat ini dan rancangan](docs/architecture.md)
-- [Status implementasi](docs/status-implementasi.md)
+- [Status implementasi](docs/implementation-status.md)
 - [Skema PostgreSQL](backend/database/README.md)
 - [Product Requirements Document](docs/prd.md)
-- [Latar belakang dan ide awal](docs/ide-awal.md)
-- [Rancangan antarmuka di Stitch](docs/desain-stitch.md)
+- [Latar belakang dan ide awal](docs/project-background.md)
+- [Rancangan antarmuka di Stitch](docs/stitch-design.md)
 
 ## Tim
 

@@ -11,19 +11,19 @@ FlowOps dirancang sebagai antrean kerja untuk penjual daring: data pesanan masuk
 | Dokumen | Untuk apa |
 | --- | --- |
 | [README repositori](https://github.com/kuchikamizake05/FlowOps#readme) | Ringkasan proyek dan cara mulai cepat. |
-| [Panduan pengembangan](pengembangan.md) | Menjalankan aplikasi, konfigurasi, pengujian, dan keterbatasan lokal. |
+| [Panduan pengembangan](development-guide.md) | Menjalankan aplikasi, konfigurasi, pengujian, dan keterbatasan lokal. |
 | [Referensi API](api.md) | Endpoint yang tersedia, contoh pemakaian, dan respons kesalahan. |
-| [Status implementasi](status-implementasi.md) | Fitur yang sudah ada dan yang masih direncanakan. |
+| [Status implementasi](implementation-status.md) | Fitur yang sudah ada dan yang masih direncanakan. |
 | [Arsitektur](architecture.md) | Struktur kode saat ini dan rancangan sistem berikutnya. |
 | [PRD](prd.md) | Masalah, pengguna, kebutuhan, dan cakupan MVP. |
-| [Latar belakang dan ide awal](ide-awal.md) | Materi awal proyek dan analisis kompetitor. |
-| [Rancangan antarmuka di Stitch](desain-stitch.md) | Tautan desain, daftar layar, dan cara menerapkannya ke repo. |
+| [Latar belakang dan ide awal](project-background.md) | Materi awal proyek dan analisis kompetitor. |
+| [Rancangan antarmuka di Stitch](stitch-design.md) | Tautan desain, daftar layar, dan cara menerapkannya ke repo. |
 
 ## Gambaran produk
 
 Masalah yang ingin diselesaikan adalah sulitnya menemukan pesanan yang perlu ditangani segera ketika data tersebar di berbagai kanal. FlowOps menargetkan lima jenis exception awal: risiko terlambat ready-to-ship, risiko terlambat diserahkan ke pengiriman, pembatalan tertunda, label pengiriman belum tersedia, serta komplain atau retur yang belum ditindaklanjuti. Aturan tenggat dirancang deterministik; AI hanya membantu merangkum teks dan memberi saran yang dapat diperiksa manusia.
 
-Untuk menjalankan fondasi API yang sudah tersedia, lihat [panduan pengembangan](pengembangan.md). Spesifikasi produk di [PRD](prd.md) menjelaskan sasaran akhir, bukan daftar fitur yang sudah berfungsi.
+Untuk menjalankan fondasi API yang sudah tersedia, lihat [panduan pengembangan](development-guide.md). Spesifikasi produk di [PRD](prd.md) menjelaskan sasaran akhir, bukan daftar fitur yang sudah berfungsi.
 
 ## Tim
 

@@ -72,4 +72,4 @@ Respons berhasil adalah `204 No Content`. Token yang sama tidak berlaku lagi set
 
 ## Respons kesalahan
 
-Kesalahan API memakai bentuk `{"error":"pesan"}`. JSON permintaan yang rusak menghasilkan `400`; kesalahan server yang tidak tertangani menghasilkan `500`. Tidak ada endpoint daftar pesanan, pembuatan pesanan, perubahan status, impor data, atau exception pada implementasi ini; lihat [status implementasi](status-implementasi.md).
+Kesalahan API memakai bentuk `{"error":"pesan"}`. JSON permintaan yang rusak menghasilkan `400`; kesalahan server yang tidak tertangani menghasilkan `500`. Tidak ada endpoint daftar pesanan, pembuatan pesanan, perubahan status, impor data, atau exception pada implementasi ini; lihat [status implementasi](implementation-status.md).

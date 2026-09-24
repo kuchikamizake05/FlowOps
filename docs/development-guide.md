@@ -75,4 +75,4 @@ Pengujian saat ini berfokus pada login dan kontrol akses. Workflow GitHub Action
 - `backend/database/`: skema PostgreSQL awal; belum terhubung ke API.
 - `frontend/`: tempat aplikasi web; belum ada aplikasi yang dapat dijalankan.
 
-Lihat [referensi API](api.md) untuk mencoba endpoint dan [status implementasi](status-implementasi.md) untuk batas kemampuan versi ini.
+Lihat [referensi API](api.md) untuk mencoba endpoint dan [status implementasi](implementation-status.md) untuk batas kemampuan versi ini.
