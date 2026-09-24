@@ -1,5 +1,5 @@
--- Skema praktik Modul 5. Jalankan pada database flowops.
--- Ini rancangan awal untuk worksheet, bukan migrasi final FO-10.
+-- Skema PostgreSQL awal FlowOps. Jalankan sekali pada database flowops yang baru.
+-- Integrasi aplikasi dan migrasi berulang akan ditambahkan pada tahap berikutnya.
 BEGIN;
 
 CREATE TABLE users (

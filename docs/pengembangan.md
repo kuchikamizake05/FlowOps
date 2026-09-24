@@ -72,6 +72,7 @@ Pengujian saat ini berfokus pada login dan kontrol akses. Workflow GitHub Action
 - `backend/src/auth/`: pengguna serta sesi dalam memori.
 - `backend/src/orders/`: pesanan contoh dalam memori.
 - `backend/test/`: pengujian API berbasis Node Test Runner dan Supertest.
+- `backend/database/`: skema PostgreSQL awal; belum terhubung ke API.
 - `frontend/`: tempat aplikasi web; belum ada aplikasi yang dapat dijalankan.
 
 Lihat [referensi API](api.md) untuk mencoba endpoint dan [status implementasi](status-implementasi.md) untuk batas kemampuan versi ini.

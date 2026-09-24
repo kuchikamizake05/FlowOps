@@ -16,7 +16,7 @@ flowchart LR
 - `backend/src/app.ts` menyediakan health check, login, identitas pengguna, logout, dan detail satu pesanan. Input login diperiksa dengan Zod; kata sandi diverifikasi memakai Argon2. Helmet memasang header keamanan dan login dibatasi 10 permintaan per 15 menit.
 - Token sesi acak dikirim sebagai Bearer token. Sesi berlaku 15 menit, dapat dicabut saat logout, dan hilang ketika proses server berhenti.
 - Owner dapat membaca kedua pesanan demo. Operator hanya dapat membaca pesanan yang `assigneeId`-nya sama dengan ID pengguna tersebut. Belum ada isolasi data antartoko atau penyimpanan permanen.
-- Tidak ada frontend, database, ingestion, rules engine, AI, audit trail, atau notifikasi di kode saat ini.
+- Skema PostgreSQL awal ada di `backend/database/`, tetapi API belum terhubung ke database. Belum ada frontend, ingestion, rules engine, AI, audit trail, atau notifikasi di kode aplikasi saat ini.
 
 ## Rancangan target MVP
 
