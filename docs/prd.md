@@ -1,5 +1,7 @@
 # Product Requirements Document — FlowOps
 
+> **Status:** baseline perencanaan MVP. Kebutuhan di dokumen ini belum seluruhnya diimplementasikan. Kemampuan yang sudah dapat dijalankan tercatat di [status implementasi](status-implementasi.md).
+
 ## Ringkasan produk
 
 FlowOps adalah aplikasi web berbasis cloud untuk membantu seller online menemukan order yang bermasalah atau mendekati tenggat pemrosesan. Sistem mengubah event order dari webhook atau CSV menjadi antrean exception yang menjelaskan alasan, prioritas, penanggung jawab, dan tindakan berikutnya.
@@ -53,3 +55,14 @@ Data order, status pengiriman, dan komplain sering tersebar di beberapa kanal. O
 - Lima exception MVP dapat dideteksi dari data contoh.
 - Operator dapat menyelesaikan alur login, melihat tugasnya, lalu mencatat tindakan pada sebuah exception.
 - Owner dapat meninjau status dan riwayat penanganan exception.
+
+## Kriteria penerimaan MVP
+
+1. Impor CSV dan webhook simulator menerima data valid, menolak data tidak valid, serta tidak membuat pekerjaan ganda ketika event yang sama dikirim ulang.
+2. Lima kondisi exception dalam ruang lingkup MVP terdeteksi dari data contoh. Hasilnya menyertakan alasan pemicu dan dapat diuji tanpa layanan AI.
+3. Antrean mengurutkan exception menurut prioritas dan tenggat; owner dapat melihat seluruh data tokonya, sementara operator hanya order yang menjadi tanggung jawabnya.
+4. Operator dapat mencatat tindakan dan menyelesaikan exception. Penugasan, perubahan status, dan koreksi hasil AI tercatat dalam riwayat.
+5. Ketika layanan AI gagal atau hasilnya tidak valid, operator tetap dapat menangani komplain/retur secara manual tanpa kehilangan data.
+6. Alur utama dapat didemonstrasikan dari data masuk hingga tindakan tercatat, dengan hasil pengujian dan batasan implementasi dilaporkan berdasarkan kondisi nyata.
+
+Kriteria ini adalah target evaluasi akhir, bukan klaim bahwa pengujian tersebut sudah lulus.
