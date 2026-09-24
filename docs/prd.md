@@ -1,6 +1,6 @@
 # Product Requirements Document — FlowOps
 
-> **Status:** baseline perencanaan MVP. Kebutuhan di dokumen ini belum seluruhnya diimplementasikan. Kemampuan yang sudah dapat dijalankan tercatat di [status implementasi](status-implementasi.md).
+> **Status:** baseline perencanaan MVP. Kebutuhan di dokumen ini belum seluruhnya diimplementasikan. Kemampuan yang sudah dapat dijalankan tercatat di [status implementasi](implementation-status.md).
 
 ## Ringkasan produk
 

@@ -20,7 +20,7 @@ Proyek Stitch **FlowOps Indonesian Operations System** menjadi acuan visual untu
 ## Cara memakai desain dalam pengembangan
 
 1. Buka layar di Stitch atau ambil detail layar melalui MCP Stitch.
-2. Gunakan rancangan sebagai acuan komponen, hierarki informasi, teks, warna, dan responsivitas. Periksa kembali alur terhadap [PRD](prd.md) dan [status implementasi](status-implementasi.md).
+2. Gunakan rancangan sebagai acuan komponen, hierarki informasi, teks, warna, dan responsivitas. Periksa kembali alur terhadap [PRD](prd.md) dan [status implementasi](implementation-status.md).
 3. Bangun frontend sebagai kode aplikasi di repo. Hubungkan layar yang sudah siap ke endpoint yang tercatat pada [referensi API](api.md).
 4. Untuk bagian yang API-nya belum tersedia, gunakan data contoh yang diberi label jelas sebagai demo. Tambahkan integrasi nyata ketika endpoint tersebut selesai.
 5. Jika desain Stitch berubah, tinjau perbedaannya dan perbarui komponen terkait secara sadar. Koneksi MCP tidak menyinkronkan kode repo secara otomatis.
