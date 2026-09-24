@@ -91,7 +91,7 @@ Pertanyaan yang dijawab FlowOps setiap saat adalah: “Order mana yang bermasala
 | ----- | ----- |
 | Jenis Kompetitor | Indirect competitor |
 | Jenis Produk | Omnichannel inbox, customer/order context, CRM, dan AI automation |
-| Target Customer | Tidak dicantumkan dalam worksheet. |
+| Target Customer | Tidak dicantumkan dalam sumber awal. |
 | Kelebihan | Menyatukan chat dari WhatsApp Business, Shopee, Tokopedia, TikTok Shop, Instagram, dan kanal lain. Menampilkan riwayat customer, order, dan catatan dalam konteks percakapan. Memiliki AI untuk booking, meeting, dan auto-order. Cocok untuk kolaborasi tim customer-facing. |
 | Kekurangan | Nilai utama berpusat pada komunikasi dan customer journey, bukan fulfillment exception queue. Berdasarkan halaman publik, tidak tampak fokus khusus pada skor risiko SLA marketplace yang transparan. FlowOps tidak perlu menandingi unified inbox; FlowOps dapat fokus pada tindakan operasional setelah order tercipta. |
 | Key Competitive Advantage & Unique Value | Menghubungkan percakapan omnichannel dengan konteks customer dan order dalam satu dashboard kolaboratif. |

@@ -4,7 +4,7 @@
 
 FlowOps adalah proyek aplikasi untuk membantu penjual daring menemukan dan menangani pesanan yang membutuhkan perhatian. Produk yang direncanakan menerima data pesanan, mendeteksi masalah berdasarkan aturan tenggat, lalu menyajikan antrean tindakan bagi pemilik toko dan operator.
 
-> **Status proyek:** repositori saat ini berisi fondasi API autentikasi dan pembatasan akses detail pesanan. Antarmuka web, impor CSV, webhook, rules engine, AI, basis data, dan notifikasi masih dalam rancangan. Lihat [status implementasi](docs/status-implementasi.md).
+> **Status proyek:** repositori saat ini berisi fondasi API autentikasi, pembatasan akses detail pesanan, dan skema PostgreSQL awal. API belum memakai database tersebut. Antarmuka web, impor CSV, webhook, rules engine, AI, dan notifikasi masih dalam rancangan. Lihat [status implementasi](docs/status-implementasi.md).
 
 ## Sasaran produk
 
@@ -24,7 +24,7 @@ Daftar ini merupakan **cakupan MVP yang direncanakan**. Kemampuan yang sudah ber
 | Pengujian | Node Test Runner, Supertest |
 | Penyimpanan | Memori proses untuk data demo dan sesi |
 
-Teknologi frontend dan database produksi belum diterapkan di repositori ini.
+Skema PostgreSQL awal tersedia di `backend/database/`, tetapi penyimpanan API masih berada dalam memori. Aplikasi frontend belum tersedia.
 
 ## Mulai cepat
 
@@ -81,9 +81,9 @@ Variabel lingkungan yang tersedia: `PORT` (bawaan `3000`), `DEMO_OWNER_PASSWORD`
 | `backend/src/server.ts` | Data demo dan titik masuk server. |
 | `backend/src/auth/`, `backend/src/orders/` | Penyimpanan pengguna, sesi, dan pesanan dalam memori. |
 | `backend/test/` | Pengujian login dan akses berdasarkan peran. |
+| `backend/database/` | Skrip pembuatan database dan skema PostgreSQL awal. |
 | `frontend/` | Tempat pengembangan aplikasi web; saat ini berisi panduan awal. |
 | `docs/` | Panduan, spesifikasi produk, arsitektur, dan status pengerjaan. |
-| `worksheet/` | Bahan tugas perkuliahan; bukan bagian layanan API. |
 
 ## Dokumentasi
 
@@ -92,6 +92,7 @@ Variabel lingkungan yang tersedia: `PORT` (bawaan `3000`), `DEMO_OWNER_PASSWORD`
 - [Referensi API](docs/api.md)
 - [Arsitektur saat ini dan rancangan](docs/architecture.md)
 - [Status implementasi](docs/status-implementasi.md)
+- [Skema PostgreSQL](backend/database/README.md)
 - [Product Requirements Document](docs/prd.md)
 - [Latar belakang dan ide awal](docs/ide-awal.md)
 - [Rancangan antarmuka di Stitch](docs/desain-stitch.md)

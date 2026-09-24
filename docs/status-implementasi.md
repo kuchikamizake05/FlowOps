@@ -8,7 +8,7 @@ Dokumen ini membedakan kemampuan yang dapat dijalankan sekarang dari target di [
 | Login owner/operator | Tersedia untuk demo | Dua pengguna dibuat saat server mulai; kata sandi dapat diatur melalui variabel lingkungan. |
 | Sesi dan logout | Tersedia untuk demo | Bearer token berlaku 15 menit dan disimpan dalam memori. |
 | Kontrol akses detail pesanan | Tersedia untuk demo | Owner dapat membaca semua pesanan contoh; operator hanya pesanan yang ditugaskan kepadanya. |
-| Penyimpanan permanen dan data toko | Belum tersedia | Pengguna dan pesanan hanya data contoh dalam memori; belum ada database atau tenant toko. |
+| Penyimpanan permanen dan data toko | Belum terintegrasi | Skema PostgreSQL awal ada di `backend/database/`, tetapi API masih memakai data contoh dalam memori; model tenant toko belum ada. |
 | Antarmuka web | Belum tersedia | Repositori belum memuat aplikasi frontend. |
 | Impor CSV dan webhook | Belum tersedia | Belum ada endpoint penerimaan data pesanan. |
 | Normalisasi dan pencegahan duplikasi event | Belum tersedia | Masih kebutuhan rancangan. |
