@@ -1,10 +1,30 @@
 # Arsitektur FlowOps
 
+> **Status dokumen:** bagian "Implementasi saat ini" menjelaskan kode yang tersedia. Bagian lain di bawahnya adalah rancangan target MVP dan belum seluruhnya diimplementasikan.
+
+## Implementasi saat ini
+
+```mermaid
+flowchart LR
+  Klien --> Express[Express API]
+  Express --> Users[UserRepository dalam memori]
+  Express --> Sessions[SessionStore dalam memori]
+  Express --> Orders[OrderRepository dalam memori]
+```
+
+- `backend/src/server.ts` membuat dua pengguna demo, dua pesanan demo, penyimpanan sesi, lalu menjalankan server pada `PORT` (bawaan 3000).
+- `backend/src/app.ts` menyediakan health check, login, identitas pengguna, logout, dan detail satu pesanan. Input login diperiksa dengan Zod; kata sandi diverifikasi memakai Argon2. Helmet memasang header keamanan dan login dibatasi 10 permintaan per 15 menit.
+- Token sesi acak dikirim sebagai Bearer token. Sesi berlaku 15 menit, dapat dicabut saat logout, dan hilang ketika proses server berhenti.
+- Owner dapat membaca kedua pesanan demo. Operator hanya dapat membaca pesanan yang `assigneeId`-nya sama dengan ID pengguna tersebut. Belum ada isolasi data antartoko atau penyimpanan permanen.
+- Tidak ada frontend, database, ingestion, rules engine, AI, audit trail, atau notifikasi di kode saat ini.
+
+## Rancangan target MVP
+
 ## Gambaran umum
 
 Arsitektur FlowOps memisahkan penerimaan data, aturan exception, akses pengguna, dan rekomendasi AI. Pemisahan ini membuat tenggat serta prioritas dapat diuji dan dijelaskan tanpa bergantung pada output AI.
 
-Implementasi API menggunakan Node.js, Express, dan TypeScript dengan mode `strict`. Kode sumber berada di `src/`, lalu dikompilasi menjadi JavaScript ESM di `dist/` sebelum dijalankan di produksi.
+Implementasi API menggunakan Node.js, Express, dan TypeScript dengan mode `strict`. Kode sumber berada di `backend/src/`, lalu dikompilasi menjadi JavaScript ESM di `backend/dist/` sebelum dijalankan di produksi.
 
 ```mermaid
 flowchart LR
