@@ -16,6 +16,7 @@ FlowOps dirancang sebagai antrean kerja untuk penjual daring: data pesanan masuk
 | [Status implementasi](implementation-status.md) | Fitur yang sudah ada dan yang masih direncanakan. |
 | [Arsitektur](architecture.md) | Struktur kode saat ini dan rancangan sistem berikutnya. |
 | [PRD](prd.md) | Masalah, pengguna, kebutuhan, dan cakupan MVP. |
+| [Spesifikasi proyek](FLOWOPS_PROJECT_SPEC.md) | Rincian MVP, kondisi repo, aturan exception, dan kriteria penerimaan. |
 | [Latar belakang dan ide awal](project-background.md) | Materi awal proyek dan analisis kompetitor. |
 | [Rancangan antarmuka di Stitch](stitch-design.md) | Tautan desain, daftar layar, dan cara menerapkannya ke repo. |
 
