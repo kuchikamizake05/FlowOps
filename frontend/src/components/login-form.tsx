@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { BadgeCheck, CircleAlert, Eye, EyeOff } from "lucide-react";
+import { login } from "@/lib/actions/auth";
 
 const inputClass =
   "h-11 w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-body-md text-body-md text-on-surface shadow-sm transition placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary";
@@ -14,8 +15,9 @@ export default function LoginForm() {
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState<boolean>(false);
 
-  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!email.trim() || !password) {
@@ -24,9 +26,22 @@ export default function LoginForm() {
     }
 
     setError(null);
+    setPending(true);
+
     console.log("Data yang dikirim: ", { email });
 
-    router.push("/dashboard");
+    try {
+      const result = await login(email, password);
+
+      if(!result.ok) {
+        setError(result.error);
+        return;
+      } else {
+        router.push("/dashboard"); // Redirect jika sukses
+      }
+    } finally {
+      setPending(false); // Selalu nonaktifkan loading, tidak peduli gagal/sukses
+    }
   };
 
   return (
@@ -89,9 +104,10 @@ export default function LoginForm() {
 
       <button
         type="submit"
-        className="flex h-11 w-full cursor-pointer items-center justify-center rounded-lg bg-primary font-label-lg text-label-lg text-on-primary shadow-sm transition duration-150 hover:bg-primary-container focus:outline-none focus:ring-2 focus:ring-primary-fixed"
+        disabled={pending}
+        className="flex h-11 w-full cursor-pointer items-center justify-center rounded-lg bg-primary font-label-lg text-label-lg text-on-primary shadow-sm transition duration-150 hover:bg-primary-container focus:outline-none focus:ring-2 focus:ring-primary-fixed disabled:opacity-60 disabled:cursor-not-allowed"
       >
-        Masuk
+        {pending ? "Memverifikasi..." : "Masuk"} 
       </button>
     </form>
   );
