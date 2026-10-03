@@ -13,6 +13,7 @@ FlowOps dirancang sebagai antrean kerja untuk penjual daring: data pesanan masuk
 | [README repositori](https://github.com/kuchikamizake05/FlowOps#readme) | Ringkasan proyek dan cara mulai cepat. |
 | [Panduan pengembangan](development-guide.md) | Menjalankan aplikasi, konfigurasi, pengujian, dan keterbatasan lokal. |
 | [Referensi API](api.md) | Endpoint yang tersedia, contoh pemakaian, dan respons kesalahan. |
+| [CSV dan webhook preview](ingestion.md) | Format input, validasi, contoh, dan batasan penyimpanan. |
 | [Status implementasi](implementation-status.md) | Fitur yang sudah ada dan yang masih direncanakan. |
 | [Arsitektur](architecture.md) | Struktur kode saat ini dan rancangan sistem berikutnya. |
 | [PRD](prd.md) | Masalah, pengguna, kebutuhan, dan cakupan MVP. |

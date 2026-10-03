@@ -4,7 +4,7 @@
 
 FlowOps adalah proyek aplikasi untuk membantu penjual daring menemukan dan menangani pesanan yang membutuhkan perhatian. Produk yang direncanakan menerima data pesanan, mendeteksi masalah berdasarkan aturan tenggat, lalu menyajikan antrean tindakan bagi pemilik toko dan operator.
 
-> **Status proyek:** repositori saat ini berisi fondasi API autentikasi, pembatasan akses detail pesanan, dan skema PostgreSQL awal. API belum memakai database tersebut. Antarmuka web, impor CSV, webhook, rules engine, AI, dan notifikasi masih dalam rancangan. Lihat [status implementasi](docs/implementation-status.md).
+> **Status proyek:** repositori saat ini berisi fondasi API autentikasi, pembatasan akses detail pesanan, dan skema PostgreSQL awal. API belum memakai database tersebut. Preview CSV/webhook sudah tersedia untuk validasi tanpa penyimpanan. Antarmuka web, rules engine, AI, dan notifikasi masih dalam rancangan. Lihat [status implementasi](docs/implementation-status.md).
 
 ## Sasaran produk
 
@@ -90,6 +90,7 @@ Variabel lingkungan yang tersedia: `PORT` (bawaan `3000`), `DEMO_OWNER_PASSWORD`
 - [Beranda dokumentasi](docs/index.md)
 - [Panduan menjalankan dan pengembangan](docs/development-guide.md)
 - [Referensi API](docs/api.md)
+- [CSV dan webhook preview](docs/ingestion.md)
 - [Arsitektur saat ini dan rancangan](docs/architecture.md)
 - [Status implementasi](docs/implementation-status.md)
 - [Skema PostgreSQL](backend/database/README.md)
