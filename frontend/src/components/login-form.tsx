@@ -1,63 +1,98 @@
 "use client";
+
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { BadgeCheck, CircleAlert, Eye, EyeOff } from "lucide-react";
+
+const inputClass =
+  "h-11 w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-body-md text-body-md text-on-surface shadow-sm transition placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary";
 
 export default function LoginForm() {
-    const [email, setEmail] = useState<string>('');
-    const [password, setPassword] = useState<string>('');
-    const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
-    const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        
-        if(!email.trim() || !password){
-            setError('Email dan kata sandi wajib diisi!');
-            return;
-        }
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
-        setError(null);
-        console.log('Data yang dikirim: ', {email});
-    };
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-    return(
-        <div className="max-w-md mx-auto my-10 rounded-lg border border-zinc-200 p-6 bg-white shadow-sm">
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                    <label htmlFor="email-field" className="block text-sm font-medium text-zinc-700 mb-1">
-                        Email
-                    </label>
-                    <input
-                        id="email-field"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-zinc-500 focus:outline-none"
-                        placeholder="example@email.com"
-                    />
-                </div>
-                
-                <div>
-                    <label htmlFor="password-field" className="block text-sm font-medium text-zinc-700 mb-1">
-                        Kata Sandi
-                    </label>
-                    <input
-                        id="password-field"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-zinc-500 focus:outline-none"
-                        placeholder="••••••••"
-                    />
-                </div>
+    if (!email.trim() || !password) {
+      setError("Email dan kata sandi wajib diisi!");
+      return;
+    }
 
-                {error && <p role="alert" className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">{error}</p>}
+    setError(null);
+    console.log("Data yang dikirim: ", { email });
 
-                <button
-                    type="submit"
-                    className="w-full rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 transition-colors"
-                >
-                    Masuk
-                </button>
-            </form>
+    router.push("/dashboard");
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-space-md">
+      {error && (
+        <div
+          role="alert"
+          className="flex items-start gap-2 rounded-lg bg-error-container p-space-sm font-body-sm text-body-sm text-on-error-container"
+        >
+          <CircleAlert className="mt-0.5 size-4.5 shrink-0" aria-hidden />
+          <span>{error}</span>
         </div>
-    );
+      )}
+
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="email-field" className="font-label-lg text-label-lg text-on-surface">
+          Email
+        </label>
+        <input
+          id="email-field"
+          type="email"
+          autoComplete="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className={inputClass}
+          placeholder="example@email.com"
+        />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="password-field" className="font-label-lg text-label-lg text-on-surface">
+          Kata sandi
+        </label>
+        <div className="relative flex items-center">
+          <input
+            id="password-field"
+            type={showPassword ? "text" : "password"}
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className={`${inputClass} pr-11`}
+            placeholder="••••••••••••••"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((shown) => !shown)}
+            aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+            aria-pressed={showPassword}
+            className="absolute right-2.5 flex rounded p-1 text-secondary transition hover:text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
+          >
+            {showPassword ? <EyeOff className="size-5" aria-hidden /> : <Eye className="size-5" aria-hidden />}
+          </button>
+        </div>
+      </div>
+
+      <p className="flex items-center gap-1.5 font-body-sm text-body-sm text-secondary">
+        <BadgeCheck className="size-4 shrink-0 text-tertiary" aria-hidden />
+        Akses disesuaikan dengan peran Owner atau Operator.
+      </p>
+
+      <button
+        type="submit"
+        className="flex h-11 w-full cursor-pointer items-center justify-center rounded-lg bg-primary font-label-lg text-label-lg text-on-primary shadow-sm transition duration-150 hover:bg-primary-container focus:outline-none focus:ring-2 focus:ring-primary-fixed"
+      >
+        Masuk
+      </button>
+    </form>
+  );
 }
