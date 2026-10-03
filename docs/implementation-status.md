@@ -10,8 +10,8 @@ Dokumen ini membedakan kemampuan yang dapat dijalankan sekarang dari target di [
 | Kontrol akses detail pesanan | Tersedia untuk demo | Owner dapat membaca semua pesanan contoh; operator hanya pesanan yang ditugaskan kepadanya. |
 | Penyimpanan permanen dan data toko | Belum terintegrasi | Skema PostgreSQL awal ada di `backend/database/`, tetapi API masih memakai data contoh dalam memori; model tenant toko belum ada. |
 | Antarmuka web | Belum tersedia | Repositori belum memuat aplikasi frontend. |
-| Impor CSV dan webhook | Belum tersedia | Belum ada endpoint penerimaan data pesanan. |
-| Normalisasi dan pencegahan duplikasi event | Belum tersedia | Masih kebutuhan rancangan. |
+| Impor CSV dan webhook | Preview tersedia | Endpoint owner memvalidasi input; belum menyimpan order/event. Lihat [ingestion](ingestion.md). |
+| Normalisasi dan pencegahan duplikasi event | Normalisasi tersedia | Status dan waktu dinormalisasi; idempotensi dan penanganan snapshot event terlambat menunggu penyimpanan FO-10. |
 | Deteksi EX-01 sampai EX-05 dan prioritas | Belum tersedia | Belum ada rules engine. |
 | Antrean, penugasan, timeline, dan audit | Belum tersedia | API saat ini hanya membaca satu pesanan berdasarkan ID. |
 | AI untuk teks komplain/retur | Belum tersedia | Belum ada integrasi model atau endpoint triage. |

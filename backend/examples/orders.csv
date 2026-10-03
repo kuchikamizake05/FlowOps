@@ -1,0 +1,3 @@
+source_event_id,marketplace_order_id,event_type,status,occurred_at,processing_deadline,complaint_text
+evt-1,ORD-1,order_updated,ready_to_ship,2026-10-03T10:00:00+07:00,2026-10-03T12:00:00+07:00,
+evt-2,ORD-2,complaint_received,shipped,2026-10-03T09:00:00+07:00,,"Barang rusak, mohon bantuan."

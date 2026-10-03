@@ -16,7 +16,7 @@ Pesanan, status pengiriman, dan pesan pelanggan dapat tersebar di beberapa kanal
 
 Repo sudah memiliki API Node.js, TypeScript, dan Express 5: health check, login, identitas sesi, logout, serta baca detail satu pesanan. Dua akun dan dua pesanan demo disimpan dalam memori. Owner dapat membaca kedua pesanan; operator hanya pesanan yang ditugaskan. Sesi berlaku 15 menit. Skema PostgreSQL awal tersedia di backend/database/schema.sql, tetapi belum dipakai oleh API.
 
-Frontend, CSV/webhook, rules engine, antrean exception, alur penugasan dan audit, AI, notifikasi, serta deployment cloud belum tersedia. [Referensi API](api.md) dan [status implementasi](implementation-status.md) menjadi rujukan kemampuan yang dapat dijalankan.
+Preview CSV/webhook sudah tersedia untuk validasi dan normalisasi tanpa penyimpanan. Frontend, ingestion permanen, rules engine, antrean exception, alur penugasan dan audit, AI, notifikasi, serta deployment cloud belum tersedia. [Referensi API](api.md) dan [status implementasi](implementation-status.md) menjadi rujukan kemampuan yang dapat dijalankan.
 
 ## Cakupan MVP
 
@@ -51,7 +51,7 @@ Satu order dapat memiliki beberapa exception. Replay atau evaluasi ulang harus m
 4. Teks komplain/retur dapat dikirim ke AI untuk saran terstruktur yang divalidasi.
 5. Owner dan operator bekerja pada antrean sesuai hak akses; setiap tindakan tercatat.
 
-Format payload dan endpoint ingestion belum ditetapkan sebagai kontrak API final. Skema awal baru memuat users, orders, order_events, exceptions, dan action_logs. Skema belum mencakup toko/organisasi, data komplain dan hasil AI, atau notifikasi. Penyimpanan permanen, migrasi, dan isolasi data antartoko harus disiapkan sebelum data nyata dipakai.
+Format payload preview didokumentasikan di [ingestion](ingestion.md); kontrak ingestion permanen masih perlu disepakati. Skema awal baru memuat users, orders, order_events, exceptions, dan action_logs. Skema belum mencakup toko/organisasi, data komplain dan hasil AI, atau notifikasi. Penyimpanan permanen, migrasi, dan isolasi data antartoko harus disiapkan sebelum data nyata dipakai.
 
 Status exception pada skema awal adalah open, in_progress, dan resolved. Gunakan istilah ini secara konsisten saat API dibuat. Tindakan mengambil tugas dan menulis catatan masuk ke action_logs.
 
@@ -68,7 +68,7 @@ AI tidak menetapkan SLA, mengubah status pesanan, membatalkan order, atau menyet
 | Backend | Express 5 dan TypeScript; data demo dalam memori. | Pertahankan kontrak API, lalu tambah penyimpanan dan endpoint MVP. |
 | Database | Skema PostgreSQL awal, belum terhubung. | Migrasi, transaksi, idempotensi, dan isolasi toko. |
 | Frontend | Direktori frontend baru berisi panduan. | Web responsif mengacu pada [rancangan Stitch](stitch-design.md). |
-| Ingestion, aturan, AI | Belum ada. | Bangun setelah model data dan kontrak event jelas. |
+| Ingestion, aturan, AI | Preview ingestion tersedia; aturan dan AI belum ada. | Integrasikan penyimpanan, lalu bangun aturan dan AI. |
 | Cloud dan notifikasi | Belum ada. | Pilih layanan setelah alur lokal teruji. |
 
 Rancangan awal pernah menyebut Azure Functions, Service Bus, Azure OpenAI, dan Telegram. Ini opsi arsitektur, bukan teknologi yang sudah dipakai atau keputusan deployment final. Pilihan cloud perlu mempertimbangkan backend Express yang telah ada, biaya, serta kebutuhan demo jaringan, cloud, dan AI.

@@ -7,6 +7,7 @@ import type { SessionStore } from './auth/session-store.js';
 import type { PublicUser } from './auth/user-repository.js';
 import { UserRepository } from './auth/user-repository.js';
 import { OrderRepository } from './orders/order-repository.js';
+import { InputError, MAX_CSV_BYTES, normalizeWebhook, previewCsv } from './ingestion/input.js';
 
 const loginSchema = z.object({
   email: z.string().email().max(254),
@@ -80,6 +81,22 @@ export function createApp({ users, sessions, orders }: AppDependencies) {
     return res.status(204).end();
   });
 
+  const requireOwner = (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user) return res.status(401).json({ error: 'Autentikasi diperlukan.' });
+    if (req.user.role !== 'owner') return res.status(403).json({ error: 'Hanya owner yang dapat memeriksa data impor.' });
+    return next();
+  };
+
+  app.post('/api/ingestion/csv/preview', requireOwner, express.text({ type: 'text/csv', limit: MAX_CSV_BYTES }), (req, res) => {
+    if (!req.is('text/csv')) return res.status(415).json({ error: 'Gunakan Content-Type: text/csv.' });
+    return res.json(previewCsv(req.body ?? ''));
+  });
+
+  app.post('/api/ingestion/webhook/preview', requireOwner, (req, res) => {
+    if (!req.is('application/json')) return res.status(415).json({ error: 'Gunakan Content-Type: application/json.' });
+    return res.json({ persisted: false, event: normalizeWebhook(req.body) });
+  });
+
   app.get('/api/orders/:id', (req, res) => {
     if (!req.user) return res.status(401).json({ error: 'Autentikasi diperlukan.' });
     const order = orders.findById(req.params.id);
@@ -91,6 +108,10 @@ export function createApp({ users, sessions, orders }: AppDependencies) {
   });
 
   app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
+    if (error instanceof InputError) return res.status(error.status).json({ error: error.message, fields: error.fields });
+    if (error && typeof error === 'object' && 'type' in error && error.type === 'entity.too.large') {
+      return res.status(413).json({ error: 'Ukuran input melebihi batas.' });
+    }
     if (error instanceof SyntaxError && 'body' in error) {
       return res.status(400).json({ error: 'JSON tidak valid.' });
     }

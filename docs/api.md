@@ -11,6 +11,8 @@ Alamat lokal bawaan: `http://localhost:3000`. Semua rute mengembalikan JSON kecu
 | GET | `/api/auth/me` | Ya | Membaca identitas sesi. |
 | POST | `/api/auth/logout` | Ya | Mencabut sesi. |
 | GET | `/api/orders/:id` | Ya | Membaca satu pesanan sesuai hak akses. |
+| POST | `/api/ingestion/csv/preview` | Owner | Validasi CSV tanpa penyimpanan. |
+| POST | `/api/ingestion/webhook/preview` | Owner | Validasi satu event simulator tanpa penyimpanan. |
 
 ## Memulai sesi
 
@@ -72,4 +74,4 @@ Respons berhasil adalah `204 No Content`. Token yang sama tidak berlaku lagi set
 
 ## Respons kesalahan
 
-Kesalahan API memakai bentuk `{"error":"pesan"}`. JSON permintaan yang rusak menghasilkan `400`; kesalahan server yang tidak tertangani menghasilkan `500`. Tidak ada endpoint daftar pesanan, pembuatan pesanan, perubahan status, impor data, atau exception pada implementasi ini; lihat [status implementasi](implementation-status.md).
+Kesalahan API memakai bentuk `{"error":"pesan"}`; validasi ingestion juga menyertakan `fields`. JSON rusak menghasilkan `400`, input terlalu besar `413`, dan kesalahan server `500`. Preview belum menyimpan order. Lihat [format dan contoh ingestion](ingestion.md) serta [status implementasi](implementation-status.md).
