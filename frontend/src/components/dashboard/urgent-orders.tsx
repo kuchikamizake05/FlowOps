@@ -68,7 +68,7 @@ export default function UrgentOrders({ orders, total }: { orders: UrgentOrder[];
       </div>
 
       <div className="w-full overflow-x-auto">
-        <table className="w-full min-w-[880px] border-collapse text-left font-body-md text-body-md">
+        <table className="w-full min-w-220 border-collapse text-left font-body-md text-body-md">
           <thead className="bg-surface-container-low font-label-md text-label-md tracking-wider text-secondary uppercase">
             <tr>
               <th scope="col" className="px-space-lg py-3.5 font-semibold">ID Pesanan</th>
@@ -163,7 +163,7 @@ export default function UrgentOrders({ orders, total }: { orders: UrgentOrder[];
           className="inline-flex items-center gap-2 rounded-lg bg-primary-container px-5 py-2 font-label-lg text-label-lg text-on-primary shadow-sm transition-opacity hover:opacity-95"
         >
           Lihat Semua Exception ({total})
-          <ArrowRight className="size-[18px]" aria-hidden />
+          <ArrowRight className="size-4.5" aria-hidden />
         </Link>
       </div>
     </section>

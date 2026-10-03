@@ -66,7 +66,7 @@ export default function MetricCard({ metric }: { metric: DashboardMetric }) {
         <div
           className={`flex size-10 items-center justify-center rounded-xl transition-colors ${style.iconBox}`}
         >
-          <Icon className="size-[22px]" aria-hidden />
+          <Icon className="size-5.5" aria-hidden />
         </div>
       </div>
 
