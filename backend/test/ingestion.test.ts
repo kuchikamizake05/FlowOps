@@ -26,7 +26,7 @@ test('CSV supports BOM, escaped quotes, commas, and multiline values', () => {
 });
 
 test('invalid CSV rows have physical line numbers and field errors', () => {
-  const csv = previewCsv(header + ',complaint_text\n' + row + ',"two\nlines"\n' + row.replace('READY_TO_SHIP', 'unknown'));
+  const csv = previewCsv(header + ',complaint_text\n' + row + ',"two\nlines"\n' + row.replace('READY_TO_SHIP', 'unknown') + ',');
   assert.equal(csv.valid, 1);
   assert.equal(csv.invalid, 1);
   assert.equal(csv.errors[0].line, 4);
