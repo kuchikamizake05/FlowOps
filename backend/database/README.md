@@ -1,21 +1,34 @@
 # Database FlowOps
 
-Folder ini menyimpan skema PostgreSQL awal untuk domain pesanan dan penanganan exception.
+Folder ini menyimpan skema PostgreSQL, data contoh (*seed data*), dan skrip runner untuk domain pesanan dan penanganan exception FlowOps.
 
 | Berkas | Fungsi |
 | --- | --- |
-| `create-database.sql` | Membuat database `flowops` satu kali dari koneksi ke database `postgres`. |
-| `schema.sql` | Membuat tabel, batasan nilai, keunikan event, dan relasi foreign key pada database `flowops`. |
+| `create-database.sql` | Membuat database `flowops` dan role `flowops_user` satu kali. |
+| `schema.sql` | Skema DDL tabel, constraint, keunikan event, dan indeks pencarian. Bersifat *repeatable* (`CREATE TABLE IF NOT EXISTS`). |
+| `seed.sql` | Data contoh akun demo (`owner` dan `operator`), pesanan contoh, event log, exception aktif, dan riwayat tindakan. Bersifat *repeatable*. |
 
-Jalankan dari akar repositori menggunakan akun PostgreSQL yang memiliki izin membuat database dan tabel:
+## Perintah Cepat
+
+Jalankan perintah ini dari akar repositori:
 
 ```bash
-psql -d postgres -f backend/database/create-database.sql
-psql -d flowops -f backend/database/schema.sql
+# Menjalankan migrasi skema tabel
+npm run db:migrate
+
+# Mengisi data contoh demo
+npm run db:seed
 ```
 
-Kedua skrip ditujukan untuk database baru dan belum merupakan migrasi yang dapat dijalankan berulang. Jangan jalankan ulang `CREATE DATABASE` atau `CREATE TABLE` pada database yang sudah terisi. Belum ada seed data atau migrasi otomatis.
+Secara bawaan, koneksi membaca variabel lingkungan `DATABASE_URL`. Jika tidak disetel, aplikasi otomatis menggunakan konfigurasi lokal:
+```text
+postgres://flowops_user:flowops_password@localhost:5432/flowops
+```
 
-Skema awal terdiri atas `users`, `orders`, `order_events`, `exceptions`, dan `action_logs`. `order_events` menjaga keunikan pasangan `source` dan `source_event_id` agar event yang sama tidak dicatat dua kali. Relasi dari pesanan, exception, dan tindakan memakai foreign key.
+## Struktur Skema
 
-API saat ini masih memakai penyimpanan dalam memori; skema PostgreSQL ini belum dipakai oleh kode `backend/src/`. Integrasi repository, migrasi berulang, data contoh, dan isolasi data per toko merupakan pekerjaan berikutnya.
+1. **`users`**: Akun pengguna, peran (`owner`, `operator`), dan hash kata sandi Argon2.
+2. **`orders`**: Data pesanan marketplace, status pemrosesan, batas tenggat (*deadline*), dan penanggung jawab (*assignee*).
+3. **`order_events`**: Rekaman log event pesanan dari webhook atau impor CSV. Pasangan `(source, source_event_id)` bersifat unik untuk mencegah pemrosesan event duplikat (idempotensi).
+4. **`exceptions`**: Masalah operasional terdeteksi (`EX-01` s/d `EX-05`), tingkat prioritas (`low`, `medium`, `high`, `critical`), dan status penanganan (`open`, `in_progress`, `resolved`).
+5. **`action_logs`**: Rekam jejak audit dan catatan penanganan oleh operator.
