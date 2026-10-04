@@ -1,0 +1,132 @@
+@import "tailwindcss";
+
+/* Thema dari stitch */
+@theme {
+  --color-background: #f7f9fb;
+  --color-surface: #f7f9fb;
+  --color-surface-bright: #f7f9fb;
+  --color-surface-dim: #d8dadc;
+  --color-surface-variant: #e0e3e5;
+  --color-surface-tint: #0053db;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f2f4f6;
+  --color-surface-container: #eceef0;
+  --color-surface-container-high: #e6e8ea;
+  --color-surface-container-highest: #e0e3e5;
+  --color-on-background: #191c1e;
+  --color-on-surface: #191c1e;
+  --color-on-surface-variant: #434655;
+  --color-inverse-surface: #2d3133;
+  --color-inverse-on-surface: #eff1f3;
+  --color-outline: #737686;
+  --color-outline-variant: #c3c6d7;
+
+  --color-primary: #004ac6;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #2563eb;
+  --color-on-primary-container: #eeefff;
+  --color-primary-fixed: #dbe1ff;
+  --color-primary-fixed-dim: #b4c5ff;
+  --color-on-primary-fixed: #00174b;
+  --color-on-primary-fixed-variant: #003ea8;
+  --color-inverse-primary: #b4c5ff;
+
+  --color-secondary: #4e5f78;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #cfe1fe;
+  --color-on-secondary-container: #53647d;
+  --color-secondary-fixed: #d3e3ff;
+  --color-secondary-fixed-dim: #b6c8e4;
+  --color-on-secondary-fixed: #091c32;
+  --color-on-secondary-fixed-variant: #374860;
+
+  --color-tertiary: #475668;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #5f6e82;
+  --color-on-tertiary-container: #e8f0ff;
+  --color-tertiary-fixed: #d4e4fa;
+  --color-tertiary-fixed-dim: #b8c8de;
+  --color-on-tertiary-fixed: #0d1d2d;
+  --color-on-tertiary-fixed-variant: #39485a;
+
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+
+  --spacing-space-xs: 0.25rem;
+  --spacing-space-sm: 0.5rem;
+  --spacing-space-md: 1rem;
+  --spacing-space-lg: 1.5rem;
+  --spacing-space-xl: 2rem;
+  --spacing-gutter: 1.5rem;
+  --spacing-gutter-mobile: 1rem;
+  --spacing-margin: 2rem;
+  --spacing-margin-mobile: 1rem;
+
+  --text-headline-xl: 32px;
+  --text-headline-xl--line-height: 40px;
+  --text-headline-xl--letter-spacing: -0.02em;
+  --text-headline-xl--font-weight: 700;
+  --text-headline-xl-mobile: 26px;
+  --text-headline-xl-mobile--line-height: 34px;
+  --text-headline-xl-mobile--letter-spacing: -0.01em;
+  --text-headline-xl-mobile--font-weight: 700;
+  --text-headline-lg: 24px;
+  --text-headline-lg--line-height: 32px;
+  --text-headline-lg--letter-spacing: -0.015em;
+  --text-headline-lg--font-weight: 700;
+  --text-headline-md: 20px;
+  --text-headline-md--line-height: 28px;
+  --text-headline-md--letter-spacing: -0.01em;
+  --text-headline-md--font-weight: 600;
+  --text-headline-sm: 16px;
+  --text-headline-sm--line-height: 24px;
+  --text-headline-sm--font-weight: 600;
+  --text-body-lg: 16px;
+  --text-body-lg--line-height: 24px;
+  --text-body-lg--font-weight: 400;
+  --text-body-md: 14px;
+  --text-body-md--line-height: 20px;
+  --text-body-md--font-weight: 400;
+  --text-body-sm: 13px;
+  --text-body-sm--line-height: 18px;
+  --text-body-sm--font-weight: 400;
+  --text-label-lg: 14px;
+  --text-label-lg--line-height: 20px;
+  --text-label-lg--font-weight: 600;
+  --text-label-md: 12px;
+  --text-label-md--line-height: 16px;
+  --text-label-md--letter-spacing: 0.01em;
+  --text-label-md--font-weight: 600;
+  --text-label-sm: 11px;
+  --text-label-sm--line-height: 14px;
+  --text-label-sm--letter-spacing: 0.02em;
+  --text-label-sm--font-weight: 600;
+  --text-numeric-table: 14px;
+  --text-numeric-table--line-height: 20px;
+  --text-numeric-table--font-weight: 500;
+}
+
+/* Variabel font dipasang next/font di <html>, jadi harus `inline`. */
+@theme inline {
+  --font-sans: var(--font-source);
+  --font-display: var(--font-jakarta);
+  --font-headline-xl: var(--font-jakarta);
+  --font-headline-xl-mobile: var(--font-jakarta);
+  --font-headline-lg: var(--font-jakarta);
+  --font-headline-md: var(--font-jakarta);
+  --font-headline-sm: var(--font-jakarta);
+  --font-body-lg: var(--font-source);
+  --font-body-md: var(--font-source);
+  --font-body-sm: var(--font-source);
+  --font-label-lg: var(--font-source);
+  --font-label-md: var(--font-source);
+  --font-label-sm: var(--font-source);
+}
+
+/* Aturan desain: angka, nominal, resi, dan hitung mundur memakai angka tabular. */
+@utility font-numeric-table {
+  font-family: var(--font-source);
+  font-variant-numeric: tabular-nums;
+}
