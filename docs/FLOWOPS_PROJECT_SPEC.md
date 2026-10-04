@@ -51,7 +51,7 @@ Satu order dapat memiliki beberapa exception. Replay atau evaluasi ulang harus m
 4. Teks komplain/retur dapat dikirim ke AI untuk saran terstruktur yang divalidasi.
 5. Owner dan operator bekerja pada antrean sesuai hak akses; setiap tindakan tercatat.
 
-Format payload preview didokumentasikan di [ingestion](ingestion.md); kontrak ingestion permanen masih perlu disepakati. Skema awal baru memuat users, orders, order_events, exceptions, dan action_logs. Skema belum mencakup toko/organisasi, data komplain dan hasil AI, atau notifikasi. Penyimpanan permanen, migrasi, dan isolasi data antartoko harus disiapkan sebelum data nyata dipakai.
+Kontrak CSV/webhook dan penyimpanan PostgreSQL demo satu toko didokumentasikan di [ingestion](ingestion.md), untuk integrasi FO-22. Skema memuat users, orders, order_events, exceptions, dan action_logs; komplain tersimpan dalam payload event. Skema belum mencakup toko/organisasi, hasil AI, atau notifikasi. Isolasi data antartoko perlu tersedia sebelum data banyak toko dipakai.
 
 Status exception pada skema awal adalah open, in_progress, dan resolved. Gunakan istilah ini secara konsisten saat API dibuat. Tindakan mengambil tugas dan menulis catatan masuk ke action_logs.
 

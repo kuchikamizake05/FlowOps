@@ -4,7 +4,7 @@
 
 FlowOps adalah proyek aplikasi untuk membantu penjual daring menemukan dan menangani pesanan yang membutuhkan perhatian. Produk yang direncanakan menerima data pesanan, mendeteksi masalah berdasarkan aturan tenggat, lalu menyajikan antrean tindakan bagi pemilik toko dan operator.
 
-> **Status proyek:** repositori saat ini berisi fondasi API autentikasi, pembatasan akses detail pesanan, dan skema PostgreSQL awal. API belum memakai database tersebut. Preview CSV/webhook sudah tersedia untuk validasi tanpa penyimpanan. Antarmuka web, rules engine, AI, dan notifikasi masih dalam rancangan. Lihat [status implementasi](docs/implementation-status.md).
+> **Status proyek:** API autentikasi, akses detail pesanan, serta impor CSV/webhook ke PostgreSQL untuk demo satu toko tersedia. Rules engine, AI, dan notifikasi belum terintegrasi. Lihat [status implementasi](docs/implementation-status.md).
 
 ## Sasaran produk
 
@@ -22,9 +22,9 @@ Daftar ini merupakan **cakupan MVP yang direncanakan**. Kemampuan yang sudah ber
 | API | Node.js, TypeScript, Express 5 |
 | Validasi dan keamanan dasar | Zod, Argon2, Helmet, express-rate-limit |
 | Pengujian | Node Test Runner, Supertest |
-| Penyimpanan | Memori proses untuk data demo dan sesi |
+| Penyimpanan | PostgreSQL untuk pesanan/event; memori proses untuk akun/sesi demo |
 
-Skema PostgreSQL awal tersedia di `backend/database/`, tetapi penyimpanan API masih berada dalam memori. Aplikasi frontend belum tersedia.
+Skema PostgreSQL tersedia di `backend/database/`. Setel `DATABASE_URL` dan jalankan `npm run db:migrate` untuk mengaktifkan penyimpanan pesanan/event. Tanpa DATABASE_URL eksplisit, server memakai pesanan demo dalam memori dan endpoint penyimpanan mengembalikan 503.
 
 ## Mulai cepat
 
@@ -58,6 +58,9 @@ Panduan permintaan API beserta respons dan kode status ada di [dokumentasi API](
 | `GET` | `/api/auth/me` | Membaca identitas pemilik token. |
 | `POST` | `/api/auth/logout` | Mengakhiri sesi. |
 | `GET` | `/api/orders/:id` | Membaca detail pesanan sesuai peran dan penugasan. |
+| `POST` | `/api/ingestion/csv` | Mengimpor CSV ke PostgreSQL. |
+| `POST` | `/api/ingestion/webhook` | Menyimpan event webhook simulator. |
+| `POST` | `/api/ingestion/csv/preview`, `/api/ingestion/webhook/preview` | Memvalidasi tanpa penyimpanan. |
 
 Rute yang memerlukan login memakai header `Authorization: Bearer <token>`. Token diperoleh dari respons login dan berlaku selama 15 menit. [Referensi API](docs/api.md) menyediakan contoh permintaan serta kode respons.
 
@@ -71,7 +74,7 @@ Rute yang memerlukan login memakai header `Authorization: Bearer <token>`. Token
 | `npm test` | Menjalankan pengujian API. |
 | `npm run typecheck` | Memeriksa tipe tanpa menghasilkan berkas. |
 
-Variabel lingkungan yang tersedia: `PORT` (bawaan `3000`), `DEMO_OWNER_PASSWORD`, dan `DEMO_OPERATOR_PASSWORD`. Tidak ada berkas `.env` yang dimuat otomatis oleh aplikasi saat ini.
+Variabel lingkungan: `PORT` (bawaan `3000`), `DEMO_OWNER_PASSWORD`, `DEMO_OPERATOR_PASSWORD`, dan `DATABASE_URL`. Tes database memerlukan `TEST_DATABASE_URL`; lihat [panduan ingestion](docs/ingestion.md#pengujian). Tidak ada berkas `.env` yang dimuat otomatis.
 
 ## Isi repositori
 
