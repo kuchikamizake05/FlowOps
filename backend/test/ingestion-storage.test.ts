@@ -104,4 +104,37 @@ test('persistent endpoints fail explicitly when storage is not configured', asyn
   const app = createApp({ users: new UserRepository(), sessions, orders: new PostgresOrderRepository({} as pg.Pool) });
   const response = await request(app).post('/api/ingestion/webhook').set('Authorization', `Bearer ${token}`).send({});
   assert.equal(response.status, 503);
+  const csv = await request(app).post('/api/ingestion/csv').set('Authorization', `Bearer ${token}`).type('text/csv').send('x');
+  assert.equal(csv.status, 503);
+});
+
+test('snapshot updates preserve assignees and store complaint/deadline data', { skip: !url }, async () => {
+  await ingestion.ingest([event('assigned', 'assigned-1')]);
+  await db.query("INSERT INTO users (id,email,role,password_hash) VALUES ('operator','operator@test.local','operator','test-only')");
+  await db.query("UPDATE orders SET assignee_id='operator' WHERE marketplace_order_id='assigned'");
+  const input = { ...event('assigned', 'assigned-2', '2026-10-04T11:00:00Z'), processingDeadline: '2026-10-05T00:00:00.000Z', complaintText: 'Please check delivery' };
+  await ingestion.ingest([input]);
+  const row = (await db.query("SELECT id,assignee_id,processing_deadline FROM orders WHERE marketplace_order_id='assigned'")).rows[0];
+  assert.equal(row.assignee_id, 'operator');
+  assert.equal(row.processing_deadline.toISOString(), input.processingDeadline);
+  assert.equal((await db.query("SELECT payload->>'complaintText' complaint FROM order_events WHERE source_event_id='assigned-2'")).rows[0].complaint, input.complaintText);
+  const reader = new PostgresOrderRepository(db);
+  assert.equal((await reader.findById(row.id))?.assigneeId, 'operator');
+  assert.equal(await reader.findById('missing'), null);
+});
+
+test('legacy history prevents old events from replacing seeded snapshots', { skip: !url }, async () => {
+  await db.query("INSERT INTO orders (id,marketplace_order_id,status) VALUES ('legacy','legacy','shipped')");
+  await db.query("INSERT INTO order_events (order_id,source,source_event_id,event_type,occurred_at) VALUES ('legacy','webhook','legacy-event','order_updated','2026-10-04T12:00:00Z')");
+  await db.query(await readFile(new URL('../database/schema.sql', import.meta.url), 'utf8'));
+  assert.equal((await ingestion.ingest([event('legacy', 'legacy-old')])).stale, 1);
+  assert.equal((await db.query("SELECT status FROM orders WHERE id='legacy'")).rows[0].status, 'shipped');
+  await assert.rejects(ingestion.ingest([event('legacy', 'legacy-event', '2026-10-04T12:00:00Z', 'shipped')]), (error: any) => error.status === 409);
+  assert.deepEqual(await ingestion.ingest([]), { accepted: 0, duplicates: 0, stale: 0 });
+});
+
+test('source distinguishes event identities while keeping one marketplace order', { skip: !url }, async () => {
+  const input = event('shared', 'shared-event');
+  assert.equal((await ingestion.ingest([input, { ...input, source: 'csv' }])).accepted, 2);
+  assert.equal((await db.query("SELECT count(*)::int n FROM orders WHERE marketplace_order_id='shared'")).rows[0].n, 1);
 });

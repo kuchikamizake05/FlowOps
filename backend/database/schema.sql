@@ -30,6 +30,17 @@ CREATE TABLE IF NOT EXISTS order_events (
     UNIQUE (source, source_event_id)
 );
 
+-- Event payloads and snapshot ordering for FO-11; safe for existing databases.
+ALTER TABLE order_events ADD COLUMN IF NOT EXISTS payload jsonb;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS last_event_at timestamptz;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS last_event_key text;
+UPDATE orders o SET last_event_at = latest.occurred_at,
+    last_event_key = latest.event_key
+FROM (SELECT DISTINCT ON (order_id) order_id, occurred_at,
+      source || ':' || source_event_id AS event_key FROM order_events
+      ORDER BY order_id, occurred_at DESC, (source || ':' || source_event_id) COLLATE "C" DESC) latest
+WHERE o.id = latest.order_id AND o.last_event_at IS NULL;
+
 CREATE TABLE IF NOT EXISTS exceptions (
     id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     order_id text NOT NULL REFERENCES orders(id) ON DELETE CASCADE,

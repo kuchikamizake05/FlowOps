@@ -4,11 +4,14 @@ import { pool, closePool, query } from '../src/database/pool.js';
 import { runMigration } from '../src/database/migrate.js';
 import { runSeed } from '../src/database/seed.js';
 
+// Seed only an explicitly selected test database, never the default local database.
+const integration = { skip: !process.env.TEST_DATABASE_URL || process.env.DATABASE_URL !== process.env.TEST_DATABASE_URL };
+
 after(async () => {
   await closePool();
 });
 
-test('database migration dan seeding dapat dijalankan berulang kali tanpa error', async () => {
+test('database migration dan seeding dapat dijalankan berulang kali tanpa error', integration, async () => {
   await runMigration();
   await runSeed();
   // Jalankan kedua kali untuk membuktikan idempotensi
@@ -25,7 +28,7 @@ test('database migration dan seeding dapat dijalankan berulang kali tanpa error'
   assert.equal(exceptionRes.rows[0].total >= 3, true);
 });
 
-test('tabel users memuat akun demo dengan role yang tepat', async () => {
+test('tabel users memuat akun demo dengan role yang tepat', integration, async () => {
   const ownerRes = await query('SELECT id, email, role FROM users WHERE email = $1', ['owner@flowops.local']);
   assert.equal(ownerRes.rows.length, 1);
   assert.equal(ownerRes.rows[0].role, 'owner');
@@ -35,7 +38,7 @@ test('tabel users memuat akun demo dengan role yang tepat', async () => {
   assert.equal(opRes.rows[0].role, 'operator');
 });
 
-test('tabel exceptions memuat aturan EX-01 sampai EX-05 dengan tingkat prioritas valid', async () => {
+test('tabel exceptions memuat aturan EX-01 sampai EX-05 dengan tingkat prioritas valid', integration, async () => {
   const res = await query('SELECT rule_code, priority, status FROM exceptions ORDER BY rule_code');
   const codes = res.rows.map((r) => r.rule_code);
   assert.equal(codes.includes('EX-01'), true);
@@ -46,7 +49,7 @@ test('tabel exceptions memuat aturan EX-01 sampai EX-05 dengan tingkat prioritas
   assert.equal(ex05?.status, 'in_progress');
 });
 
-test('order_events mencegah duplikasi event (idempotency constraint)', async () => {
+test('order_events mencegah duplikasi event (idempotency constraint)', integration, async () => {
   const event = {
     order_id: 'demo-order-1',
     source: 'webhook',

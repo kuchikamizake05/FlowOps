@@ -6,7 +6,8 @@ import { z } from 'zod';
 import type { SessionStore } from './auth/session-store.js';
 import type { PublicUser } from './auth/user-repository.js';
 import { UserRepository } from './auth/user-repository.js';
-import { OrderRepository } from './orders/order-repository.js';
+import type { OrderReader } from './orders/order-repository.js';
+import type { IngestionStore } from './ingestion/postgres-ingestion.js';
 import { InputError, MAX_CSV_BYTES, normalizeWebhook, previewCsv } from './ingestion/input.js';
 
 const loginSchema = z.object({
@@ -17,7 +18,8 @@ const loginSchema = z.object({
 interface AppDependencies {
   users: UserRepository;
   sessions: SessionStore;
-  orders: OrderRepository;
+  orders: OrderReader;
+  ingestion?: IngestionStore;
 }
 
 function publicUser(user: PublicUser): PublicUser {
@@ -29,7 +31,7 @@ function bearerToken(header: string | undefined): string | null {
   return header.slice('Bearer '.length);
 }
 
-export function createApp({ users, sessions, orders }: AppDependencies) {
+export function createApp({ users, sessions, orders, ingestion }: AppDependencies) {
   const app = express();
   app.use(helmet());
   app.use(express.json({ limit: '32kb' }));
@@ -97,9 +99,24 @@ export function createApp({ users, sessions, orders }: AppDependencies) {
     return res.json({ persisted: false, event: normalizeWebhook(req.body) });
   });
 
-  app.get('/api/orders/:id', (req, res) => {
+  app.post('/api/ingestion/csv', requireOwner, express.text({ type: 'text/csv', limit: MAX_CSV_BYTES }), async (req, res) => {
+    if (!ingestion) return res.status(503).json({ error: 'Penyimpanan database belum dikonfigurasi.' });
+    if (!req.is('text/csv')) return res.status(415).json({ error: 'Gunakan Content-Type: text/csv.' });
+    const preview = previewCsv(req.body ?? '');
+    const result = await ingestion.ingest(preview.events);
+    return res.json({ ...preview, events: undefined, persisted: true, ...result });
+  });
+
+  app.post('/api/ingestion/webhook', requireOwner, async (req, res) => {
+    if (!ingestion) return res.status(503).json({ error: 'Penyimpanan database belum dikonfigurasi.' });
+    if (!req.is('application/json')) return res.status(415).json({ error: 'Gunakan Content-Type: application/json.' });
+    const result = await ingestion.ingest([normalizeWebhook(req.body)]);
+    return res.json({ persisted: true, total: 1, valid: 1, invalid: 0, errors: [], ...result });
+  });
+
+  app.get('/api/orders/:id', async (req, res) => {
     if (!req.user) return res.status(401).json({ error: 'Autentikasi diperlukan.' });
-    const order = orders.findById(req.params.id);
+    const order = await orders.findById(req.params.id);
     if (!order) return res.status(404).json({ error: 'Order tidak ditemukan.' });
 
     const canAccess = req.user.role === 'owner' || order.assigneeId === req.user.id;
