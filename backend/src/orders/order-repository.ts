@@ -1,8 +1,12 @@
 export interface Order {
   id: string;
   marketplaceOrderId?: string;
-  assigneeId: string;
+  assigneeId: string | null;
   status?: string;
+}
+
+export interface OrderReader {
+  findById(id: string): Order | null | Promise<Order | null>;
 }
 
 export class OrderRepository {
