@@ -1,6 +1,22 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import pg from 'pg';
 
 const { Pool } = pg;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// baca env dari backend dan atau dari flowops
+try {
+  process.loadEnvFile(path.resolve(__dirname, '../../../.env'));
+} catch { }
+try {
+  process.loadEnvFile(path.resolve(__dirname, '../../.env'));
+} catch { }
+try {
+  process.loadEnvFile();
+} catch { }
 
 export const DEFAULT_DATABASE_URL =
   'postgres://flowops_user:flowops_password@localhost:5432/flowops';
