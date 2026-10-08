@@ -3,10 +3,13 @@ import { CalendarDays, Info } from "lucide-react";
 import MetricCard from "@/components/dashboard/metric-card";
 import UrgentOrders from "@/components/dashboard/urgent-orders";
 import { demoSnapshot, metrics, urgentOrders } from "@/lib/demo/dashboard";
+import { requireSessionUser } from "@/lib/session";
 
 export const metadata = { title: "Dashboard" };
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  await requireSessionUser();
+
   const activeExceptions = metrics.find((m) => m.id === "active")?.value ?? 0;
 
   return (

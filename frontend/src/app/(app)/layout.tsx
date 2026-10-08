@@ -1,9 +1,12 @@
 import AppShell from "@/components/app-shell";
-import { demoSnapshot, demoUser } from "@/lib/demo/dashboard";
+import { demoSnapshot } from "@/lib/demo/dashboard";
+import { requireSessionUser } from "@/lib/session";
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  const user = await requireSessionUser();
+
   return (
-    <AppShell user={demoUser} demoBadge={demoSnapshot.badge}>
+    <AppShell user={user} demoBadge={demoSnapshot.badge}>
       {children}
     </AppShell>
   );

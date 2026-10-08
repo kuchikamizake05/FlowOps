@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { backendFetch } from "../backend";
 import { sessionCookieName } from "../config";
 
@@ -48,4 +49,18 @@ export async function login(email: unknown, password: unknown): Promise<LoginRes
   }
 
   return { ok: false, error: "Terjadi kesalahan pada server." };
+}
+
+/** Mencabut sesi di backend, menghapus cookie, lalu kembali ke halaman masuk. */
+export async function logout(): Promise<void> {
+  const store = await cookies();
+  const token = store.get(sessionCookieName)?.value;
+
+  if (token) {
+    // Jika backend gagal dihubungi, cookie tetap dihapus agar pengguna tetap keluar.
+    await backendFetch<void>("/api/auth/logout", { method: "POST", token });
+  }
+
+  store.delete(sessionCookieName);
+  redirect("/login");
 }
