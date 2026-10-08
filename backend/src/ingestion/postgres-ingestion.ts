@@ -1,3 +1,4 @@
+import { syncOrderExceptionsInTransaction } from '../rules/rules-engine.js';
 import { randomUUID } from 'node:crypto';
 import type pg from 'pg';
 import { InputError, type NormalizedEvent } from './input.js';
@@ -55,6 +56,8 @@ export class PostgresIngestion implements IngestionStore {
         );
         result.accepted++;
         if (!updated.rowCount) result.stale++;
+        // Late events may introduce complaints without changing the latest snapshot.
+        await syncOrderExceptionsInTransaction(client, id);
       }
       await client.query('COMMIT');
       return result;
