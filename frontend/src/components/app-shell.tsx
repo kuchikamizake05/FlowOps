@@ -17,20 +17,27 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+import { logout } from "@/lib/actions/auth";
+import type { SessionUser, UserRole } from "@/lib/types";
+
 interface NavItem {
   href: string;
   label: string;
   icon: LucideIcon;
   /** false = halamannya belum dibangun, jadi tidak dapat diklik. */
   ready: boolean;
+  /** Kosong = semua peran. Menu tidak ditampilkan bagi peran lain; backend tetap menegakkan akses. */
+  roles?: UserRole[];
 }
 
 const navItems: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, ready: true },
   { href: "/antrean", label: "Antrean Exception", icon: TriangleAlert, ready: true },
-  { href: "/impor", label: "Impor CSV", icon: FileUp, ready: false },
+  { href: "/impor", label: "Impor CSV", icon: FileUp, ready: false, roles: ["owner"] },
   { href: "/pengaturan", label: "Pengaturan", icon: Settings, ready: false },
 ];
+
+const roleLabels: Record<UserRole, string> = { owner: "Owner", operator: "Operator" };
 
 const navItemBase =
   "relative flex items-center justify-between rounded-lg px-space-sm py-2 font-label-lg text-label-lg transition-colors";
@@ -40,7 +47,7 @@ const navItemIdle = "text-secondary hover:bg-surface-container-low hover:text-on
 const navItemDisabled = "cursor-not-allowed text-secondary/60";
 
 interface AppShellProps {
-  user: { name: string; role: string; email: string };
+  user: SessionUser;
   demoBadge: string;
   children: React.ReactNode;
 }
@@ -48,6 +55,7 @@ interface AppShellProps {
 export default function AppShell({ user, demoBadge, children }: AppShellProps) {
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
+  const visibleItems = navItems.filter((item) => !item.roles || item.roles.includes(user.role));
 
   useEffect(() => {
     if (!drawerOpen) return;
@@ -60,6 +68,12 @@ export default function AppShell({ user, demoBadge, children }: AppShellProps) {
 
   return (
     <div className="min-h-screen bg-surface">
+      <a
+        href="#konten"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-60 focus:rounded-lg focus:bg-primary focus:px-3 focus:py-2 focus:font-label-lg focus:text-on-primary"
+      >
+        Lewati ke konten
+      </a>
       {drawerOpen && (
         <div
           className="fixed inset-0 z-40 bg-[#102238]/40 lg:hidden"
@@ -102,7 +116,7 @@ export default function AppShell({ user, demoBadge, children }: AppShellProps) {
           </p>
 
           <nav className="flex flex-col gap-1 px-2">
-            {navItems.map(({ href, label, icon: Icon, ready }) => {
+            {visibleItems.map(({ href, label, icon: Icon, ready }) => {
               const content = (
                 <>
                   <span className="flex items-center gap-space-sm">
@@ -173,11 +187,11 @@ export default function AppShell({ user, demoBadge, children }: AppShellProps) {
           <div className="flex items-center gap-space-md">
             <div className="flex items-center gap-space-sm">
               <div className="hidden flex-col text-right sm:flex">
-                <span className="font-label-lg text-label-lg leading-tight text-on-surface">
-                  {user.name}
+                <span className="max-w-48 truncate font-label-lg text-label-lg leading-tight text-on-surface">
+                  {user.email}
                 </span>
                 <span className="font-label-sm text-label-sm leading-none text-secondary">
-                  {user.role}
+                  {roleLabels[user.role]}
                 </span>
               </div>
               <div
@@ -187,18 +201,21 @@ export default function AppShell({ user, demoBadge, children }: AppShellProps) {
                 <User className="size-4.5 text-on-primary" aria-hidden />
               </div>
             </div>
-            {/* Keluar sungguhan (memanggil POST /api/auth/logout) dibuat di langkah sesi. */}
-            <Link
-              href="/login"
-              className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 font-label-md text-label-md text-error transition-colors hover:bg-error-container hover:text-on-error-container"
-            >
-              <LogOut className="size-4" aria-hidden />
-              Keluar
-            </Link>
+            <form action={logout}>
+              <button
+                type="submit"
+                className="flex cursor-pointer items-center gap-1.5 rounded-lg px-2 py-1.5 font-label-md text-label-md text-error transition-colors hover:bg-error-container hover:text-on-error-container"
+              >
+                <LogOut className="size-4" aria-hidden />
+                Keluar
+              </button>
+            </form>
           </div>
         </header>
 
-        <main className="px-margin-mobile pt-24 pb-space-xl sm:px-margin">{children}</main>
+        <main id="konten" tabIndex={-1} className="px-margin-mobile pt-24 pb-space-xl focus:outline-none sm:px-margin">
+          {children}
+        </main>
       </div>
     </div>
   );

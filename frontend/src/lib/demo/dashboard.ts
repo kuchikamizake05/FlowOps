@@ -9,12 +9,6 @@ export const demoSnapshot = {
   badge: "Data demo · 24 September 2026, 14.42 WIB",
 };
 
-export const demoUser = {
-  name: "Owner Demo",
-  role: "Owner",
-  email: "owner@flowops.local",
-};
-
 export type MetricTone = "default" | "critical" | "attention" | "done";
 
 export interface DashboardMetric {
