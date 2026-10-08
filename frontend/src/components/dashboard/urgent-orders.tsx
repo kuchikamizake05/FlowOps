@@ -43,21 +43,32 @@ const handlingStyles: Record<HandlingStatus, { label: string; pill: string; dot:
   },
 };
 
-export default function UrgentOrders({ orders, total }: { orders: UrgentOrder[]; total: number }) {
+interface UrgentOrdersProps {
+  orders: UrgentOrder[];
+  total: number;
+  /** "queue" dipakai di halaman antrean: tanpa tautan ke antrean itu sendiri. */
+  variant?: "dashboard" | "queue";
+}
+
+export default function UrgentOrders({ orders, total, variant = "dashboard" }: UrgentOrdersProps) {
+  const isQueue = variant === "queue";
   return (
     <section className="flex flex-col overflow-hidden rounded-xl bg-surface-container-lowest shadow-sm">
       <div className="flex flex-col justify-between gap-space-sm p-space-lg sm:flex-row sm:items-center">
         <div className="flex flex-col">
           <div className="flex items-center gap-2">
-            <h2 className="font-headline-md text-headline-md text-on-surface">Butuh Tindakan Segera</h2>
+            <h2 className="font-headline-md text-headline-md text-on-surface">{isQueue ? "Daftar Exception" : "Butuh Tindakan Segera"}</h2>
             <span className="rounded-full bg-error-container px-2 py-0.5 font-label-sm text-label-sm text-on-error-container">
-              {orders.length} Prioritas
+              {orders.length} {isQueue ? "Exception" : "Prioritas"}
             </span>
           </div>
           <p className="font-body-sm text-body-sm text-secondary">
-            Pesanan dengan batas SLA terdekat atau memerlukan delegasi penanganan kilat.
+            {isQueue
+              ? "Pesanan berkendala, diurutkan menurut prioritas dan tenggat."
+              : "Pesanan dengan batas SLA terdekat atau memerlukan delegasi penanganan kilat."}
           </p>
         </div>
+        {!isQueue && (
         <Link
           href="/antrean"
           className="inline-flex items-center gap-1 font-label-lg text-label-lg text-primary hover:underline"
@@ -65,6 +76,7 @@ export default function UrgentOrders({ orders, total }: { orders: UrgentOrder[];
           Buka Antrean Lengkap
           <ChevronRight className="size-4" aria-hidden />
         </Link>
+        )}
       </div>
 
       <div className="w-full overflow-x-auto">
@@ -157,6 +169,7 @@ export default function UrgentOrders({ orders, total }: { orders: UrgentOrder[];
         </table>
       </div>
 
+      {!isQueue && (
       <div className="flex items-center justify-center bg-surface-container-low/60 p-space-md">
         <Link
           href="/antrean"
@@ -166,6 +179,7 @@ export default function UrgentOrders({ orders, total }: { orders: UrgentOrder[];
           <ArrowRight className="size-4.5" aria-hidden />
         </Link>
       </div>
+      )}
     </section>
   );
 }
