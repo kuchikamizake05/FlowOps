@@ -1,34 +1,31 @@
 # Status implementasi
 
-Dokumen ini membedakan kemampuan yang dapat dijalankan sekarang dari target di [PRD](prd.md). Status merujuk pada isi repositori saat dokumentasi ini diperbarui.
+Diperbarui 8 Oktober 2026 untuk pengerjaan FO-22 dan FO-14 pada branch `539398`. Tabel ini membedakan backend yang dapat dijalankan dari integrasi frontend yang masih dilanjutkan.
 
 | Area | Status | Bukti dan batasan |
 | --- | --- | --- |
-| Server API | Tersedia | Express dan TypeScript, dengan `GET /health`. |
-| Login owner/operator | Tersedia untuk demo | Dua pengguna dibuat saat server mulai; kata sandi dapat diatur melalui variabel lingkungan. |
-| Sesi dan logout | Tersedia untuk demo | Bearer token berlaku 15 menit dan disimpan dalam memori. |
-| Kontrol akses detail pesanan | Tersedia untuk demo | Owner dapat membaca semua pesanan contoh; operator hanya pesanan yang ditugaskan kepadanya. |
-| Penyimpanan permanen dan data toko | PostgreSQL terintegrasi untuk pesanan/event demo | Aktif dengan DATABASE_URL eksplisit; pengguna/sesi masih dalam memori dan model tenant toko belum ada. |
-| Antarmuka web | Belum tersedia | Repositori belum memuat aplikasi frontend. |
-| Impor CSV dan webhook | Tersedia untuk demo satu toko | Endpoint owner memvalidasi dan menyimpan order/event; preview juga tersedia. Lihat [ingestion](ingestion.md). |
-| Normalisasi dan pencegahan duplikasi event | Tersedia | Transaksi, ID event unik per sumber, payload konflik 409, dan snapshot berdasarkan waktu/kunci deterministik. |
-| Deteksi EX-01 sampai EX-05 dan prioritas | Belum tersedia | Belum ada rules engine. |
-| Antrean, penugasan, timeline, dan audit | Belum tersedia | API saat ini hanya membaca satu pesanan berdasarkan ID. |
-| AI untuk teks komplain/retur | Belum tersedia | Belum ada integrasi model atau endpoint triage. |
-| Notifikasi dan deployment cloud | Belum tersedia | Belum ada implementasi di repositori ini. |
+| Server API | Tersedia | Express/TypeScript dan GET /health. |
+| Login owner/operator | Tersedia | Dengan DATABASE_URL memakai akun PostgreSQL; tanpa database memakai akun demo memori. |
+| Sesi/logout | Tersedia untuk demo | Bearer token 15 menit dalam memori; restart menghapus sesi. |
+| Penyimpanan | PostgreSQL | Akun, order/event, exception, audit, dan inbox. Model tenant/toko belum ada. |
+| CSV/webhook | Tersedia | Validasi, normalisasi UTC/status, transaksi dan pencegahan replay. Event accepted mengevaluasi rules dalam transaksi yang sama. |
+| Rules EX-01–EX-05 | Evaluator tersedia | Nama event/status FO-11 diselaraskan. EX-04 memerlukan flag label pengiriman yang belum tersedia pada data ingestion tersimpan. Evaluasi tenggat dilakukan saat event diterima atau fungsi sync dipanggil; belum ada scheduler. |
+| Antrean/detail | API tersedia | Filter, pagination, prioritas/tenggat, akses owner/operator, dan timeline. |
+| Assignee/status/audit | API tersedia | Claim atomik, expectedVersion, penugasan owner, status open/in_progress/resolved, dan catatan wajib penyelesaian. |
+| Notifikasi | Inbox API tersedia | Exception baru/eskalasi dan perubahan workflow menghasilkan notifikasi persisten; scoped ke penerima, deduplikasi, read acknowledgment. Belum push/WebSocket. |
+| Kontrak API FO-22 | Tersedia | docs/api.md mencakup fitur tersedia dan rencana AI. Disusun Faaid sesuai arahan; adopsi frontend Rafif masih dilanjutkan. |
+| Frontend | Fondasi tersedia | Login dan kerangka dashboard/antrean Next.js; dashboard masih data demo. Adapter PATCH/CSV dan layar workflow perlu diintegrasikan pada FO-13. |
+| AI | Belum tersedia | Kontrak rencana terpisah dari endpoint tersedia; FO-15/FO-16. |
+| Deployment cloud | Belum tersedia | FO-18 setelah integrasi dan pengujian alur lengkap. |
 
-## Yang telah diuji
+## Verifikasi
 
-Pengujian di `backend/test/auth-access.test.ts` memeriksa bahwa login tidak mengembalikan hash kata sandi, operator ditolak saat membaca pesanan pengguna lain, dan owner maupun operator yang ditugaskan dapat membaca pesanan yang diizinkan. Jalankan `npm test` dari akar repo untuk memverifikasi pada mesin Anda.
+Tes PostgreSQL memakai database terpisah dan schema acak. Cakupan pengujian meliputi klaim bersamaan, akses, perubahan versi, rollback, filter, catatan selesai, audit, inbox per penerima, event replay, serta eskalasi rules. Jalankan npm test dengan TEST_DATABASE_URL dan DATABASE_URL yang menunjuk database tes yang sama; tanpa konfigurasi tersebut tes PostgreSQL dilewati. Pemeriksaan tipe dan build backend juga tersedia dari skrip akar.
 
-## Tahap pengembangan berikutnya
+## Batasan migrasi
 
-Urutan ini mengikuti ketergantungan pada [PRD](prd.md) dan [arsitektur](architecture.md):
+Migrasi aman dijalankan ulang. Bila database lama memiliki dua exception aktif untuk kombinasi order/rule yang sama, indeks unik menolak migrasi agar riwayat tidak dihapus diam-diam; rekonsiliasi data tersebut terlebih dahulu. Data contoh lama mungkin memiliki status in_progress tanpa assignee exception; owner dapat menetapkan operator sebelum melanjutkan penanganan.
 
-1. Tetapkan model data dan penyimpanan permanen beserta batas data per toko.
-2. Selaraskan kontrak ingestion yang sudah diterapkan dengan frontend pada FO-22.
-3. Tambahkan aturan exception dan prioritas yang dapat diuji tanpa AI.
-4. Sediakan API dan antarmuka antrean, penugasan, tindakan, serta audit.
-5. Tambahkan triage teks sebagai bantuan operator dan uji alur pengguna.
+## Berikutnya
 
-Daftar ini adalah rencana, bukan janji bahwa endpoint atau halaman tersebut sudah tersedia.
+Integrasikan frontend FO-13 dengan kontrak API, lanjutkan AI FO-15/FO-16, uji alur menyeluruh FO-17, lalu deploy FO-18. Tentukan model tenant dan scheduler aturan sebelum mengklaim dukungan produksi untuk banyak toko.

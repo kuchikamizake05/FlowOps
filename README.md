@@ -4,7 +4,7 @@
 
 FlowOps adalah proyek aplikasi untuk membantu penjual daring menemukan dan menangani pesanan yang membutuhkan perhatian. Produk yang direncanakan menerima data pesanan, mendeteksi masalah berdasarkan aturan tenggat, lalu menyajikan antrean tindakan bagi pemilik toko dan operator.
 
-> **Status proyek:** API autentikasi, akses detail pesanan, serta impor CSV/webhook ke PostgreSQL untuk demo satu toko tersedia. Rules engine, AI, dan notifikasi belum terintegrasi. Lihat [status implementasi](docs/implementation-status.md).
+> **Status proyek:** API autentikasi, ingestion, rules, antrean, penugasan exception, audit, dan notifikasi PostgreSQL tersedia untuk demo satu toko. Fondasi frontend tersedia; integrasi layar antrean dan AI masih dilanjutkan. Lihat [status implementasi](docs/implementation-status.md).
 
 ## Sasaran produk
 
@@ -22,9 +22,11 @@ Daftar ini merupakan **cakupan MVP yang direncanakan**. Kemampuan yang sudah ber
 | API | Node.js, TypeScript, Express 5 |
 | Validasi dan keamanan dasar | Zod, Argon2, Helmet, express-rate-limit |
 | Pengujian | Node Test Runner, Supertest |
-| Penyimpanan | PostgreSQL untuk pesanan/event; memori proses untuk akun/sesi demo |
+| Penyimpanan | PostgreSQL untuk akun, pesanan/event, exception, audit, dan notifikasi; sesi dalam memori |
 
 Skema PostgreSQL tersedia di `backend/database/`. Setel `DATABASE_URL` dan jalankan `npm run db:migrate` untuk mengaktifkan penyimpanan pesanan/event. Tanpa DATABASE_URL eksplisit, server memakai pesanan demo dalam memori dan endpoint penyimpanan mengembalikan 503.
+
+Dengan `DATABASE_URL`, login memakai akun dan hash kata sandi dalam tabel `users`; jalankan `npm run db:seed` untuk menyiapkan akun contoh dan lihat panduan database untuk konfigurasi kata sandinya. Variabel kata sandi demo server hanya berlaku untuk mode tanpa database. Impor yang diterima mengevaluasi rules dan menyimpan notifikasi dalam transaksi yang sama. Notifikasi dibaca melalui API inbox; belum berupa push atau WebSocket.
 
 ## Mulai cepat
 
@@ -61,6 +63,11 @@ Panduan permintaan API beserta respons dan kode status ada di [dokumentasi API](
 | `POST` | `/api/ingestion/csv` | Mengimpor CSV ke PostgreSQL. |
 | `POST` | `/api/ingestion/webhook` | Menyimpan event webhook simulator. |
 | `POST` | `/api/ingestion/csv/preview`, `/api/ingestion/webhook/preview` | Memvalidasi tanpa penyimpanan. |
+| `GET` | `/api/exceptions`, `/api/exceptions/:id` | Antrean terfilter dan detail exception. |
+| `POST` | `/api/exceptions/:id/claim` | Operator mengambil tugas dengan pemeriksaan versi. |
+| `PATCH` | `/api/exceptions/:id/assignee`, `/api/exceptions/:id/status` | Penugasan owner dan perubahan status dengan audit. |
+| `GET` | `/api/exceptions/:id/actions`, `/api/operators` | Riwayat tindakan dan direktori operator untuk owner. |
+| `GET`, `PATCH` | `/api/notifications`, `/api/notifications/:id/read` | Inbox pengguna dan penandaan sudah dibaca. |
 
 Rute yang memerlukan login memakai header `Authorization: Bearer <token>`. Token diperoleh dari respons login dan berlaku selama 15 menit. [Referensi API](docs/api.md) menyediakan contoh permintaan serta kode respons.
 
@@ -74,7 +81,7 @@ Rute yang memerlukan login memakai header `Authorization: Bearer <token>`. Token
 | `npm test` | Menjalankan pengujian API. |
 | `npm run typecheck` | Memeriksa tipe tanpa menghasilkan berkas. |
 
-Variabel lingkungan: `PORT` (bawaan `3000`), `DEMO_OWNER_PASSWORD`, `DEMO_OPERATOR_PASSWORD`, dan `DATABASE_URL`. Tes database memerlukan `TEST_DATABASE_URL`; lihat [panduan ingestion](docs/ingestion.md#pengujian). Tidak ada berkas `.env` yang dimuat otomatis.
+Variabel lingkungan: `PORT` (bawaan `3000`), `DEMO_OWNER_PASSWORD`, `DEMO_OPERATOR_PASSWORD`, dan `DATABASE_URL`. Tes database memerlukan `TEST_DATABASE_URL`; lihat [panduan ingestion](docs/ingestion.md#pengujian). Modul pool memuat `.env` akar dan backend bila tersedia; variabel lingkungan yang sudah ditetapkan tetap diprioritaskan.
 
 ## Isi repositori
 
@@ -85,7 +92,8 @@ Variabel lingkungan: `PORT` (bawaan `3000`), `DEMO_OWNER_PASSWORD`, `DEMO_OPERAT
 | `backend/src/auth/`, `backend/src/orders/` | Penyimpanan pengguna, sesi, dan pesanan dalam memori. |
 | `backend/test/` | Pengujian login dan akses berdasarkan peran. |
 | `backend/database/` | Skrip pembuatan database dan skema PostgreSQL awal. |
-| `frontend/` | Tempat pengembangan aplikasi web; saat ini berisi panduan awal. |
+| `backend/src/workflow/`, `backend/src/rules/` | Penanganan exception, inbox, dan evaluasi rules. |
+| `frontend/` | Next.js: login, kerangka aplikasi, dashboard demo, dan kerangka antrean. |
 | `docs/` | Panduan, spesifikasi produk, arsitektur, dan status pengerjaan. |
 
 ## Dokumentasi
