@@ -9,6 +9,8 @@ import { UserRepository } from './auth/user-repository.js';
 import type { OrderReader } from './orders/order-repository.js';
 import type { IngestionStore } from './ingestion/postgres-ingestion.js';
 import { InputError, MAX_CSV_BYTES, normalizeWebhook, previewCsv } from './ingestion/input.js';
+import { workflowRouter } from './workflow/router.js';
+import type { WorkflowStore } from './workflow/types.js';
 
 const loginSchema = z.object({
   email: z.string().email().max(254),
@@ -20,6 +22,7 @@ interface AppDependencies {
   sessions: SessionStore;
   orders: OrderReader;
   ingestion?: IngestionStore;
+  workflow?: WorkflowStore;
 }
 
 function publicUser(user: PublicUser): PublicUser {
@@ -31,7 +34,7 @@ function bearerToken(header: string | undefined): string | null {
   return header.slice('Bearer '.length);
 }
 
-export function createApp({ users, sessions, orders, ingestion }: AppDependencies) {
+export function createApp({ users, sessions, orders, ingestion, workflow }: AppDependencies) {
   const app = express();
   app.use(helmet());
   app.use(express.json({ limit: '32kb' }));
@@ -56,7 +59,7 @@ export function createApp({ users, sessions, orders, ingestion }: AppDependencie
       const parsed = loginSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: 'Input login tidak valid.' });
 
-      const user = users.findByEmail(parsed.data.email.toLowerCase());
+      const user = await users.findByEmail(parsed.data.email.toLowerCase());
       const passwordValid = user && await argon2.verify(user.passwordHash, parsed.data.password);
       if (!passwordValid) return res.status(401).json({ error: 'Email atau password salah.' });
 
@@ -119,10 +122,12 @@ export function createApp({ users, sessions, orders, ingestion }: AppDependencie
     const order = await orders.findById(req.params.id);
     if (!order) return res.status(404).json({ error: 'Order tidak ditemukan.' });
 
-    const canAccess = req.user.role === 'owner' || order.assigneeId === req.user.id;
+    const canAccess = req.user.role === 'owner' || order.assigneeId === req.user.id || Boolean(workflow && await workflow.canAccessOrder(req.user, order.id));
     if (!canAccess) return res.status(403).json({ error: 'Anda tidak memiliki akses ke order ini.' });
-    return res.json({ order });
+    return res.json({ order, ...(workflow ? await workflow.orderTimeline(req.user,order.id) : {}) });
   });
+
+  app.use('/api', workflowRouter(workflow));
 
   app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
     if (error instanceof InputError) return res.status(error.status).json({ error: error.message, fields: error.fields });

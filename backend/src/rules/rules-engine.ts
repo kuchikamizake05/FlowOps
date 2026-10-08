@@ -1,4 +1,5 @@
-import { pool, query } from '../database/pool.js';
+import type pg from 'pg';
+import { pool } from '../database/pool.js';
 
 export type RuleCode = 'EX-01' | 'EX-02' | 'EX-03' | 'EX-04' | 'EX-05';
 export type ExceptionPriority = 'low' | 'medium' | 'high' | 'critical';
@@ -59,7 +60,7 @@ export function checkEX01(
   now: Date,
   thresholdMinutes = DEFAULT_THRESHOLD_MINUTES
 ): DetectedException | null {
-  const terminalStatuses = ['ready_to_ship', 'shipped', 'delivered', 'cancelled'];
+  const terminalStatuses = ['ready_to_ship', 'shipped', 'delivered', 'completed', 'cancelled'];
   if (terminalStatuses.includes(order.status.toLowerCase())) {
     return null;
   }
@@ -133,15 +134,16 @@ export function checkEX03(
   now: Date,
   thresholdMinutes = DEFAULT_THRESHOLD_MINUTES
 ): DetectedException | null {
-  if (order.status.toLowerCase() === 'cancelled') {
+  if (['cancelled', 'completed'].includes(order.status.toLowerCase())) {
     return null;
   }
 
   const events = order.events ?? [];
-  const hasCancelRequest = events.some((e) => e.eventType === 'cancellation_requested');
-  const cancelResolved = events.some((e) =>
-    ['cancellation_approved', 'cancellation_rejected'].includes(e.eventType)
-  );
+  const ordered = events.map((event, index) => ({ ...event, index })).sort((a, b) => new Date(a.occurredAt).getTime() - new Date(b.occurredAt).getTime() || a.index - b.index);
+  const latestRequest = ordered.findLastIndex(event => ['cancellation_requested', 'cancellation_pending'].includes(event.eventType));
+  const latestDecision = ordered.findLastIndex(event => ['cancellation_approved', 'cancellation_rejected'].includes(event.eventType));
+  const hasCancelRequest = latestRequest >= 0 || order.status.toLowerCase() === 'cancellation_pending';
+  const cancelResolved = latestDecision >= 0 && latestDecision > latestRequest;
 
   if (hasCancelRequest && !cancelResolved) {
     // Pembatalan order selalu butuh perhatian prioritas tinggi/kritis agar pesanan tidak terlanjur dikirim
@@ -169,7 +171,7 @@ export function checkEX04(
   now: Date,
   thresholdMinutes = DEFAULT_THRESHOLD_MINUTES
 ): DetectedException | null {
-  const terminalStatuses = ['shipped', 'delivered', 'cancelled'];
+  const terminalStatuses = ['shipped', 'delivered', 'completed', 'cancelled'];
   if (terminalStatuses.includes(order.status.toLowerCase())) {
     return null;
   }
@@ -204,8 +206,8 @@ export function checkEX05(
   now: Date
 ): DetectedException | null {
   const events = order.events ?? [];
-  const hasComplaintEvent = events.some((e) => e.eventType === 'complaint_filed' || e.eventType === 'buyer_complaint_filed');
-  const isComplaintStatus = order.status.toLowerCase().includes('complaint');
+  const hasComplaintEvent = events.some((e) => ['complaint_filed', 'buyer_complaint_filed', 'complaint_received', 'return_requested', 'return_pending'].includes(e.eventType));
+  const isComplaintStatus = order.status.toLowerCase().includes('complaint') || ['return_requested', 'return_pending'].includes(order.status.toLowerCase());
 
   if ((hasComplaintEvent || isComplaintStatus) && !order.hasActionLog) {
     return {
@@ -247,78 +249,62 @@ export function evaluateOrderExceptions(
   return detected;
 }
 
-/**
- * Membaca data pesanan dari database, mengevaluasi rules, dan menyimpan/memperbarui
- * hasilnya ke tabel exceptions di PostgreSQL tanpa duplikasi (idempotent).
- */
-export async function syncOrderExceptions(orderId: string, now: Date = new Date()): Promise<DetectedException[]> {
-  // 1. Ambil data pesanan
-  const orderRes = await query(
-    `SELECT id, marketplace_order_id, status, processing_deadline
-     FROM orders WHERE id = $1`,
-    [orderId]
-  );
-
-  if (orderRes.rows.length === 0) {
-    throw new Error(`Order ${orderId} tidak ditemukan`);
-  }
-
-  const orderRow = orderRes.rows[0];
-
-  // 2. Ambil riwayat event pesanan
-  const eventsRes = await query(
-    `SELECT event_type, occurred_at FROM order_events WHERE order_id = $1 ORDER BY occurred_at ASC`,
-    [orderId]
-  );
-
-  // 3. Cek apakah sudah ada catatan penanganan di action_logs untuk order ini
-  const actionLogRes = await query(
-    `SELECT a.id FROM action_logs a
-     JOIN exceptions e ON a.exception_id = e.id
-     WHERE e.order_id = $1 LIMIT 1`,
-    [orderId]
-  );
-
-  const evaluationInput: OrderEvaluationInput = {
-    id: orderRow.id,
-    marketplaceOrderId: orderRow.marketplace_order_id,
-    status: orderRow.status,
-    processingDeadline: orderRow.processing_deadline,
-    events: eventsRes.rows.map((r: any) => ({
-      eventType: r.event_type,
-      occurredAt: r.occurred_at
-    })),
-    hasActionLog: actionLogRes.rows.length > 0
+/** Synchronize within the caller's transaction. The order lock serializes each order. */
+export async function syncOrderExceptionsInTransaction(client: pg.PoolClient, orderId: string, now = new Date()): Promise<DetectedException[]> {
+  const orderRes = await client.query('SELECT * FROM orders WHERE id = $1 FOR UPDATE', [orderId]);
+  const order = orderRes.rows[0];
+  if (!order) throw new Error(`Order ${orderId} tidak ditemukan`);
+  const events = await client.query('SELECT id, event_type, occurred_at, payload FROM order_events WHERE order_id=$1 ORDER BY occurred_at, id', [orderId]);
+  const triggerKey = (rule: RuleCode): string | null => {
+    const types = rule === 'EX-03' ? ['cancellation_requested', 'cancellation_pending'] : ['complaint_filed', 'buyer_complaint_filed', 'complaint_received', 'return_requested', 'return_pending'];
+    const trigger = [...events.rows].reverse().find(row => types.includes(row.event_type) || types.includes(row.payload?.status));
+    return trigger ? `event:${trigger.id}` : order.last_event_key;
   };
-
-  const detected = evaluateOrderExceptions(evaluationInput, now);
-
-  // 4. Sinkronkan ke tabel exceptions secara aman (hindari duplikasi aktif)
+  // Assignment/status audits are not evidence that a complaint has been handled.
+  const handled = await client.query(`SELECT id FROM exceptions WHERE order_id=$1 AND rule_code='EX-05' AND status='resolved' AND detection_key IS NOT DISTINCT FROM $2 LIMIT 1`, [orderId, triggerKey('EX-05')]);
+  const detected = evaluateOrderExceptions({ id: order.id, status: order.status, processingDeadline: order.processing_deadline,
+    events: events.rows.flatMap(row => [{ eventType: row.event_type, occurredAt: row.occurred_at }, ...(['cancellation_pending', 'return_pending'].includes(row.payload?.status) ? [{ eventType: row.payload.status, occurredAt: row.occurred_at }] : [])]), hasActionLog: !!handled.rowCount }, now);
+  const ranks: Record<ExceptionPriority, number> = { low: 0, medium: 1, high: 2, critical: 3 };
   for (const ex of detected) {
-    const existingRes = await query(
-      `SELECT id, status FROM exceptions
-       WHERE order_id = $1 AND rule_code = $2 AND status IN ('open', 'in_progress')
-       LIMIT 1`,
-      [orderId, ex.ruleCode]
-    );
-
-    if (existingRes.rows.length > 0) {
-      // Perbarui prioritas dan alasan terbaru jika exception sudah aktif
-      await query(
-        `UPDATE exceptions
-         SET priority = $1, reason = $2
-         WHERE id = $3`,
-        [ex.priority, ex.reason, existingRes.rows[0].id]
-      );
+    const detectionKey = ['EX-03', 'EX-05'].includes(ex.ruleCode) ? triggerKey(ex.ruleCode) : order.last_event_key;
+    const active = await client.query(`SELECT * FROM exceptions WHERE order_id=$1 AND rule_code=$2 AND status IN ('open','in_progress') FOR UPDATE`, [orderId, ex.ruleCode]);
+    let exception = active.rows[0];
+    let kind: string | undefined;
+    if (exception) {
+      const escalated = ranks[ex.priority] > ranks[exception.priority as ExceptionPriority];
+      const changed = exception.priority !== ex.priority || exception.reason !== ex.reason || exception.detection_key !== detectionKey;
+      if (changed) {
+        const updated = await client.query(`UPDATE exceptions SET priority=$2, reason=$3, detection_key=$4, updated_at=$5, version=version+1 WHERE id=$1 RETURNING *`, [exception.id, ex.priority, ex.reason, detectionKey, now]);
+        exception = updated.rows[0];
+      }
+      if (escalated) kind = 'escalation';
     } else {
-      // Masukkan baris baru
-      await query(
-        `INSERT INTO exceptions (order_id, rule_code, priority, status, reason)
-         VALUES ($1, $2, $3, $4, $5)`,
-        [orderId, ex.ruleCode, ex.priority, ex.status, ex.reason]
-      );
+      // A resolved finding on the same snapshot stays resolved, even when re-evaluated.
+      const resolved = await client.query(`SELECT id FROM exceptions WHERE order_id=$1 AND rule_code=$2 AND status='resolved' AND detection_key IS NOT DISTINCT FROM $3 LIMIT 1`, [orderId, ex.ruleCode, detectionKey]);
+      if (resolved.rowCount) continue;
+      const inserted = await client.query(`INSERT INTO exceptions(order_id,rule_code,priority,status,reason,detection_key) VALUES($1,$2,$3,'open',$4,$5) RETURNING *`, [orderId, ex.ruleCode, ex.priority, ex.reason, detectionKey]);
+      exception = inserted.rows[0];
+      kind = 'new';
+    }
+    if (kind) {
+      await client.query(`INSERT INTO notifications(recipient_id,exception_id,kind,priority,dedupe_key)
+        SELECT id,$1,$2,$3,$4 || ':' || id FROM users WHERE role='owner' OR (role='operator' AND ($5::text IS NULL OR id=$5))
+        ON CONFLICT(dedupe_key) DO NOTHING`, [exception.id, kind, ex.priority, kind === 'new' ? `new:${exception.id}` : `escalation:${exception.id}:${ex.priority}:${exception.version}`, exception.assignee_id]);
     }
   }
-
   return detected;
+}
+
+/** Public standalone entry point; all statements use one transaction and connection. */
+export async function syncOrderExceptions(orderId: string, now = new Date()): Promise<DetectedException[]> {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const detected = await syncOrderExceptionsInTransaction(client, orderId, now);
+    await client.query('COMMIT');
+    return detected;
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally { client.release(); }
 }

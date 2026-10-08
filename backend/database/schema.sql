@@ -73,4 +73,25 @@ CREATE INDEX IF NOT EXISTS idx_exceptions_status ON exceptions(status);
 CREATE INDEX IF NOT EXISTS idx_exceptions_priority ON exceptions(priority);
 CREATE INDEX IF NOT EXISTS idx_action_logs_exception ON action_logs(exception_id);
 
+-- Persistent exception workflow and recipient-scoped notifications (FO-14).
+ALTER TABLE exceptions ADD COLUMN IF NOT EXISTS assignee_id text REFERENCES users(id) ON DELETE SET NULL;
+ALTER TABLE exceptions ADD COLUMN IF NOT EXISTS version integer NOT NULL DEFAULT 1 CHECK(version >= 1);
+ALTER TABLE exceptions ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE exceptions ADD COLUMN IF NOT EXISTS detection_key text;
+ALTER TABLE action_logs ADD COLUMN IF NOT EXISTS before_state jsonb;
+ALTER TABLE action_logs ADD COLUMN IF NOT EXISTS after_state jsonb;
+-- Preserve historical duplicates: fail rather than silently remove their audit history.
+CREATE UNIQUE INDEX IF NOT EXISTS idx_exceptions_active_rule ON exceptions(order_id,rule_code) WHERE status IN ('open','in_progress');
+CREATE INDEX IF NOT EXISTS idx_exceptions_assignee ON exceptions(assignee_id);
+CREATE TABLE IF NOT EXISTS notifications (
+ id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+ recipient_id text NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ exception_id bigint NOT NULL REFERENCES exceptions(id) ON DELETE CASCADE,
+ kind text NOT NULL,
+ priority text NOT NULL CHECK(priority IN ('low','medium','high','critical')),
+ dedupe_key text NOT NULL UNIQUE,
+ read_at timestamptz,
+ created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_notifications_recipient ON notifications(recipient_id,created_at DESC);
 COMMIT;

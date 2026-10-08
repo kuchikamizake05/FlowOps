@@ -6,6 +6,8 @@ import { OrderRepository } from './orders/order-repository.js';
 import { PostgresOrderRepository } from './orders/postgres-order-repository.js';
 import { PostgresIngestion } from './ingestion/postgres-ingestion.js';
 import { pool } from './database/pool.js';
+import { PostgresUserRepository } from './auth/postgres-user-repository.js';
+import { PostgresWorkflow } from './workflow/postgres-workflow.js';
 
 const ownerPassword = process.env.DEMO_OWNER_PASSWORD ?? 'change-this-owner-password';
 const operatorPassword = process.env.DEMO_OPERATOR_PASSWORD ?? 'change-this-operator-password';
@@ -22,9 +24,10 @@ const orders = new OrderRepository([
 
 const databaseConfigured = Boolean(process.env.DATABASE_URL);
 const app = createApp({
-  users, sessions: new SessionStore(),
+  users: databaseConfigured ? new PostgresUserRepository(pool) : users, sessions: new SessionStore(),
   orders: databaseConfigured ? new PostgresOrderRepository(pool) : orders,
-  ingestion: databaseConfigured ? new PostgresIngestion(pool) : undefined
+  ingestion: databaseConfigured ? new PostgresIngestion(pool) : undefined,
+  workflow: databaseConfigured ? new PostgresWorkflow(pool) : undefined
 });
 const port = Number(process.env.PORT ?? 3000);
 app.listen(port, () => console.log(`FlowOps API berjalan pada http://localhost:${port}`));

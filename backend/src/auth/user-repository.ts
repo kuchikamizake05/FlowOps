@@ -12,7 +12,7 @@ export type PublicUser = Pick<User, 'id' | 'email' | 'role'>;
 export class UserRepository {
   constructor(private readonly users: User[] = []) {}
 
-  findByEmail(email: string): User | null {
+  findByEmail(email: string): User | null | Promise<User | null> {
     return this.users.find((user) => user.email === email) ?? null;
   }
 }
